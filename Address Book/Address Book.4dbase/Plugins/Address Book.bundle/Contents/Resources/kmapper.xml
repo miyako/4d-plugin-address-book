@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application xmlns="http://www.4d.com/namespace/reserved/FP/Constants">
+   <appid>&quot;0&quot;</appid>
+   <fourdversmin>&quot;9.0.0&quot;</fourdversmin>
+   <fourdversmax>&quot;9.0.0&quot;</fourdversmax>
+   <command name="AB FIND PEOPLE" str="20000" topic="40">
+      <param position="2" k="20006"/>
+      <param position="3" k="20000"/>
+      <param position="4" k="20005"/>
+      <param position="5" k="20003"/>
+      <param position="6" k="20009"/>
+   </command>
+</application>
