@@ -325,7 +325,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>D1ECEAE81647266B0046ADD7</string>
+										<string>D1C2F6C51662EB200070B241</string>
 										<key>history</key>
 										<array>
 											<string>D145370516471E1500A7AF39</string>
@@ -334,7 +334,7 @@
 											<string>D14537391647212C00A7AF39</string>
 											<string>D145373A1647212C00A7AF39</string>
 											<string>D14537461647246500A7AF39</string>
-											<string>D1ECEAD3164725F40046ADD7</string>
+											<string>D1C2F65D1662E9080070B241</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -346,14 +346,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {535, 260}}</string>
+								<string>{{0, 0}, {535, 242}}</string>
 								<key>RubberWindowFrame</key>
 								<string>607 335 788 504 0 0 1440 878 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>260pt</string>
+							<string>242pt</string>
 						</dict>
 						<dict>
 							<key>ContentConfiguration</key>
@@ -366,14 +366,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 265}, {535, 198}}</string>
+								<string>{{0, 247}, {535, 216}}</string>
 								<key>RubberWindowFrame</key>
 								<string>607 335 788 504 0 0 1440 878 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
 							<key>Proportion</key>
-							<string>198pt</string>
+							<string>216pt</string>
 						</dict>
 					</array>
 					<key>Proportion</key>
@@ -392,9 +392,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>D1ECEAE31647262E0046ADD7</string>
+				<string>D1C2F6C61662EB200070B241</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>D1ECEAE41647262E0046ADD7</string>
+				<string>D1C2F6C71662EB200070B241</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -533,7 +533,7 @@
 	<key>WindowOrderList</key>
 	<array>
 		<string>D14536EA16471D5C00A7AF39</string>
-		<string>/Users/miyako/Desktop/Address Book/Address Book.xcodeproj</string>
+		<string>/Users/miyako/github-miyako/4d-plugin-address-book/Address Book/Address Book.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
 	<string>607 335 788 504 0 0 1440 878 </string>
@@ -613,7 +613,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>D14536EA16471D5C00A7AF39</string>
-				<string>D1ECEAE51647262E0046ADD7</string>
+				<string>D1C2F6C81662EB200070B241</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
