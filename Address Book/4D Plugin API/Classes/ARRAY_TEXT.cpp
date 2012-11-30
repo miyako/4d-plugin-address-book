@@ -86,7 +86,7 @@ void ARRAY_TEXT::convertFromUTF8(const CUTF8String* fromString, CUTF16String* to
 	int len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (LPCSTR)fromString->c_str(), fromString->length(), NULL, 0);
 	
 	if(len){
-		std::vector<uint8_t> buf(len * sizeof(PA_Unichar));
+		std::vector<uint8_t> buf((len + 1) * sizeof(PA_Unichar));
 		if(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (LPCSTR)fromString->c_str(), fromString->length(), (LPWSTR)&buf[0], len)){
 			*toString = CUTF16String((const PA_Unichar *)&buf[0]);
 		}
