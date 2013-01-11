@@ -69,3 +69,5 @@ void AB_LIST_GROUP_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams);
 void AB_FIND_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams);
 void AB_GET_GROUP_GROUPS(sLONG_PTR *pResult, PackagePtr pParams);
 void AB_GET_PERSON_GROUPS(sLONG_PTR *pResult, PackagePtr pParams);
+void AB_REMOVE_FROM_PRIVACY_LIST(sLONG_PTR *pResult, PackagePtr pParams);
+void AB_Is_access_denied(sLONG_PTR *pResult, PackagePtr pParams);

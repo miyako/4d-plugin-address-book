@@ -14,8 +14,22 @@
 <ex4D:plugin-description xmlns:ex4D="http://www.4d.com/plugin">
 <!-- write documentation for Address Book here -->
 <p>This plugin gives access to the Address Book shared datastore from 4D.</p>
+<p>Change list for 2013-01-12</p>
+<p>New Commands</p>
+<p>
+<a href="#command:9,44">AB Is access denied</a>
+</p>
+<p>
+<a href="#command:9,43">AB REMOVE FROM PRIVACY LIST</a>
+</p>
 <p>Change list for 2012-05-19</p>
 <p>New Commands</p>
+<p>
+<a href="#command:9,44">AB Is access denied</a>
+</p>
+<p>
+<a href="#command:9,43">AB REMOVE FROM PRIVACY LIST</a>
+</p>
 <p>
 <a href="#command:9,41">AB GET GROUP GROUPS</a>
 </p>
@@ -1430,6 +1444,23 @@ More specifically, instead of using NSRunningApplication for AB_TERMINATE, it no
 <!-- write documentation for AB GET PERSON GROUPS here -->
 <p>Get the parent groups to which the person belongs.</p>
 </ex4D:command-description>
+<a name="command:9,44"></a>
+<h3>AB Is access denied</h3>
+<p>
+<code>LONGINT:=AB Is access denied</code>
+</p>
+<p>
+<code>returnValue</code> (LONGINT)<br>
+<ex4D:return-value label="" type="L" xmlns:ex4D="http://www.4d.com/plugin">
+<!-- write documentation for return value (LONGINT) here-->
+</ex4D:return-value>
+</p>
+<p>
+<span class="title">Discussion</span>
+</p>
+<ex4D:command-description xmlns:ex4D="http://www.4d.com/plugin">
+<!-- write documentation for AB Is access denied here -->
+</ex4D:command-description>
 <a name="command:9,39"></a>
 <h3>AB LIST GROUP PEOPLE</h3>
 <p>
@@ -1504,6 +1535,17 @@ More specifically, instead of using NSRunningApplication for AB_TERMINATE, it no
 <ex4D:command-description xmlns:ex4D="http://www.4d.com/plugin">
 <!-- write documentation for AB LIST GROUP PEOPLE here -->
 <p>This command allows one to retrive basic information about all the people who belongs to a group in one call.</p>
+</ex4D:command-description>
+<a name="command:9,43"></a>
+<h3>AB REMOVE FROM PRIVACY LIST</h3>
+<p>
+<code>AB REMOVE FROM PRIVACY LIST</code>
+</p>
+<p>
+<span class="title">Discussion</span>
+</p>
+<ex4D:command-description xmlns:ex4D="http://www.4d.com/plugin">
+<!-- write documentation for AB REMOVE FROM PRIVACY LIST here -->
 </ex4D:command-description>
 <a name="constant:1"></a>
 <h2>AB Labels</h2>
@@ -2111,6 +2153,6 @@ More specifically, instead of using NSRunningApplication for AB_TERMINATE, it no
 <code><a name="constant:10,2"></a>AB And (1)</code>
 </p>
 <p class="footer">
-<span class="title">Documentation Update: </span>2012-11-04T21:53:1909:00</p>
+<span class="title">Documentation Update: </span>2013-01-11T15:29:3609:00</p>
 </body>
 </html>

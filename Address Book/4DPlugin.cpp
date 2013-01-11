@@ -42,6 +42,7 @@ void CommandDispatcher (int32_t pProcNum, sLONG_PTR *pResult, PackagePtr pParams
 	switch(pProcNum)
 	{
 			
+		case kServerDeinitPlugin:
 		case kDeinitPlugin:
 			if(listener)
 			{
@@ -233,6 +234,14 @@ void CommandDispatcher (int32_t pProcNum, sLONG_PTR *pResult, PackagePtr pParams
 			
 		case 42 :
 			AB_GET_PERSON_GROUPS(pResult, pParams);
+			break;	
+			
+		case 43 :
+			AB_REMOVE_FROM_PRIVACY_LIST(pResult, pParams);
+			break;
+			
+		case 44 :
+			AB_Is_access_denied(pResult, pParams);
 			break;			
 	}
 #endif	
@@ -3125,5 +3134,30 @@ void AB_GET_PERSON_GROUPS(sLONG_PTR *pResult, PackagePtr pParams)
 	[uniqueId release];	
 	
 	Param2.toParamAtIndex(pParams, 2);
+}
+
+void AB_REMOVE_FROM_PRIVACY_LIST(sLONG_PTR *pResult, PackagePtr pParams)
+{	
+	if(NSClassFromString(@"NSUserNotificationCenter")){
+	
+		NSMutableArray * arguments = [[NSMutableArray alloc]init];
+		
+		[arguments addObject:@"reset"];
+		[arguments addObject:@"AddressBook"];	
+		
+		[NSTask launchedTaskWithLaunchPath:@"/usr/bin/tccutil" arguments:arguments];
+		
+		[arguments release];		
+	
+	}
+
+}
+
+void AB_Is_access_denied(sLONG_PTR *pResult, PackagePtr pParams)
+{
+	C_LONGINT returnValue;
+	
+	returnValue.setIntValue(![ABAddressBook sharedAddressBook]);
+	returnValue.setReturn(pResult);
 }
 #endif

@@ -130,7 +130,7 @@ void C_TEXT::convertFromUTF8(const CUTF8String* fromString, CUTF16String* toStri
 #else
 	CFStringRef str = CFStringCreateWithBytes(kCFAllocatorDefault, fromString->c_str(), fromString->length(), kCFStringEncodingUTF8, true);
 	if(str){
-		int len = CFStringGetLength(str)+1;
+		int len = CFStringGetLength(str) + 1;
 		std::vector<uint8_t> buf(len * sizeof(PA_Unichar));
 		CFStringGetCharacters(str, CFRangeMake(0, len), (UniChar *)&buf[0]);
 		*toString = CUTF16String((const PA_Unichar *)&buf[0]);
@@ -145,7 +145,7 @@ void C_TEXT::convertToUTF8(const CUTF16String* fromString, CUTF8String* toString
 	int len = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, (LPCWSTR)fromString->c_str(), fromString->length(), NULL, 0, NULL, NULL);
 	
 	if(len){
-		std::vector<uint8_t> buf(len);
+		std::vector<uint8_t> buf(len + 1);
 		if(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, (LPCWSTR)fromString->c_str(), fromString->length(), (LPSTR)&buf[0], len, NULL, NULL)){
 			*toString = CUTF8String((const uint8_t *)&buf[0]);
 		}
@@ -156,7 +156,7 @@ void C_TEXT::convertToUTF8(const CUTF16String* fromString, CUTF8String* toString
 	if(str){
 		
 		size_t size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(str), kCFStringEncodingUTF8) + sizeof(uint8_t);
-		std::vector<uint8_t> buf(size);
+		std::vector<uint8_t> buf(size + 1);
 		CFIndex len = 0;
 		CFStringGetBytes(str, CFRangeMake(0, CFStringGetLength(str)), kCFStringEncodingUTF8, 0, true, (UInt8 *)&buf[0], size, &len);
 
