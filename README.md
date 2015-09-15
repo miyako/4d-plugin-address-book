@@ -7,6 +7,8 @@
 
 **Important**: The callback system has been revised; now the process name is a UUID. Previously it was "AddressBook Notification".
 
+The change list for 2011-10-18 has been revereted; now the v11 (and above) version requires 10.6, and no longer used AppleScript.
+
 ```
 Change list for 2012-05-19
 
