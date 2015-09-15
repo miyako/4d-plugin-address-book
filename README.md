@@ -3,11 +3,9 @@
 
 4D Plugin to access the contacts database on OS X, using the old AddressBook framework.
 
-Change list for 2015-09-16
+**New**: Added 64 bits, v14 architecture.
 
-Added 64 bits, v14 architecture.
-
-Important: The callback system has been revised; now the process name is a UUID. Previously it was "AddressBook Notification".
+**Important**: The callback system has been revised; now the process name is a UUID. Previously it was "AddressBook Notification".
 
 ```
 Change list for 2012-05-19
