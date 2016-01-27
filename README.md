@@ -1,9 +1,16 @@
 4d-pugin-address-book
 =====================
 
-4D Plugin to access the contacts database on OS X, using the old AddressBook framework.
+Access Contacts with the old AddressBook framework.
 
-**New**: Added 64 bits, v14 architecture.
+##Platform
+
+| carbon | cocoa | win32 | win64 |
+|:------:|:-----:|:---------:|:---------:|
+|10.6|10.8|🚫|🚫|
+
+
+###Remarks
 
 **Important**: The callback system has been revised; now the process name is a UUID. Previously it was "AddressBook Notification".
 
