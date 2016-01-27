@@ -1,7 +1,7 @@
 4d-pugin-address-book
 =====================
 
-Access Contacts with the old AddressBook framework.
+Access "contacts" with the old AddressBook framework.
 
 ##Platform
 
