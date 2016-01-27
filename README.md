@@ -7,7 +7,7 @@ Access "contacts" with the old AddressBook framework.
 
 | carbon | cocoa | win32 | win64 |
 |:------:|:-----:|:---------:|:---------:|
-|10.6|10.8|🚫|🚫|
+|🆗|🆗|🚫|🚫|
 
 Commands
 ---
