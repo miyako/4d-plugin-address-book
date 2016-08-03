@@ -10,28 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "4DPlugin.cpp"
-            timestampString = "464050647.409794"
+            timestampString = "491895245.796573"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
-            landmarkName = "-addressbookChanged:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "4DPlugin.cpp"
-            timestampString = "464050789.115478"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "154"
-            endingLineNumber = "154"
-            landmarkName = "listenerLoop()"
+            startingLineNumber = "1978"
+            endingLineNumber = "1978"
+            landmarkName = "AB_QUERY_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
