@@ -1,7 +1,7 @@
 4d-pugin-address-book
 =====================
 
-Access "contacts" with the old AddressBook framework.
+Access "contacts" via the [Address Book API](https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AddressBook/AddressBook.html).
 
 ##Platform
 
@@ -12,66 +12,57 @@ Access "contacts" with the old AddressBook framework.
 Commands
 ---
 
-```
-// --- Application
-AB_TERMINATE
-AB_LAUNCH
+```c
+AB TERMINATE
+AB LAUNCH
 
-// --- People
-AB_Create_person
-AB_Set_person_property
-AB_Get_person_property
-AB_Remove_person
-AB_Set_person_properties
-AB_Get_person_properties
-AB_Set_person_image
-AB_Get_person_image
-AB_Person_get_vcard
-AB_QUERY_PEOPLE
-AB_Create_person_with_vcard
-AB_Set_person_flags
-AB_Get_person_flags
-AB_Get_me
-AB_Set_me
+AB Create person
+AB Set person property
+AB Get person property
+AB Remove person
+AB Set person properties
+AB Get person properties
+AB Set person image
+AB Get person image
+AB Person get vcard
+AB QUERY PEOPLE
+AB Create person with vcard
+AB Set person flags
+AB Get person flags
+AB Get me
+AB Set me
 
-// --- Group
-AB_Create_group
-AB_Set_group_name
-AB_Get_group_name
-AB_Remove_group
-AB_Remove_person_from_group
-AB_Add_group_to_group
-AB_Add_person_to_group
-AB_Remove_group_from_group
-AB_Get_people_in_group
-AB_Get_groups_in_group
+AB Create group
+AB Set group name
+AB Get group name
+AB Remove group
+AB Remove person from group
+AB Add group to group
+AB Add person to group
+AB Remove group from group
+AB Get people in group
+AB Get groups in group
 
-// --- Type Cast
-AB_Make_date
-AB_GET_DATE
-AB_Make_address
-AB_GET_ADDRESS
+AB Make date
+AB GET DATE
+AB Make address
+AB GET ADDRESS
 
-// --- Address Book
-AB_GET_LIST
+AB GET LIST
 
-// --- Utilities
-AB_Get_localized_string
-AB_Get_default_country_code
-AB_Get_default_name_ordering
+AB Get localized string
+AB Get default country code
+AB Get default name ordering
 
-// --- Notification
-AB_Set_notification_method
-AB_Get_notification_method
+AB Set notification method
+AB Get notification method
 
-// --- Group II
-AB_Get_parent_groups
+AB Get parent groups
 
-// --- Special
-AB_LIST_GROUP_PEOPLE
-AB_FIND_PEOPLE
-AB_GET_GROUP_GROUPS
-AB_GET_PERSON_GROUPS
-AB_REMOVE_FROM_PRIVACY_LIST
-AB_Is_access_denied
+AB LIST GROUP PEOPLE
+AB FIND PEOPLE
+AB GET GROUP GROUPS
+AB GET PERSON GROUPS
+AB REMOVE FROM PRIVACY LIST
+AB Is access denied
 ```
