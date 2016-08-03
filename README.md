@@ -12,7 +12,7 @@ Access "contacts" via the [Address Book API](https://developer.apple.com/library
 Commands
 ---
 
-```c
+```
 AB TERMINATE
 AB LAUNCH
 
