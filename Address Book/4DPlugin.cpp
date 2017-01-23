@@ -195,10 +195,10 @@ void listenerLoopFinish(){
         AB::METHOD_ID = 0;
         [AB::listener release];
         //tell listener to die      
-        while(AB::METHOD_PROCESS_ID){
-            PA_YieldAbsolute();
+//        while(AB::METHOD_PROCESS_ID){
+//            PA_YieldAbsolute();
             PA_UnfreezeProcess(AB::METHOD_PROCESS_ID);
-        }
+//        }
     }
 } 
 
