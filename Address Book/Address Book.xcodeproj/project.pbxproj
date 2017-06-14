@@ -521,7 +521,7 @@
 		42D60B440A9DDBC8002ABB42 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_IDENTITY = "Developer ID Application: keisuke miyako (Y69CWUC25B)";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
@@ -540,7 +540,7 @@
 		42D60B450A9DDBC8002ABB42 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_IDENTITY = "Developer ID Application: keisuke miyako (Y69CWUC25B)";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
@@ -558,7 +558,7 @@
 		42D60B460A9DDBC8002ABB42 /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_LINK_OBJC_RUNTIME = NO;
 				CODE_SIGN_IDENTITY = "Developer ID Application: keisuke miyako (Y69CWUC25B)";
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
