@@ -1837,11 +1837,9 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
 void AB_Set_person_image(sLONG_PTR *pResult, PackagePtr pParams)
 {
 	C_TEXT Param1;
-	C_PICTURE Param2;
 	C_LONGINT returnValue;
 	
 	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
 	
 	NSError *error = nil;
 	int success = 0;
@@ -2428,7 +2426,10 @@ void AB_Get_people_in_group(sLONG_PTR *pResult, PackagePtr pParams)
 			people.appendUTF16String(@"");
 			for( i = 0; i < [members count]; ++i )
 			{
-                PA_YieldAbsolute();
+				if((i % 0x2000)==0)
+				{
+					PA_YieldAbsolute();
+				}
 				people.appendUTF16String([[members objectAtIndex:i]valueForProperty:@"UID"]);
 			}
 			success = 1;
@@ -2673,7 +2674,10 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 				{
 					ids.appendUTF16String(@"");
 					for(i = 0 ; i < [people count] ; ++i){
-                        PA_YieldAbsolute();
+						if((i % 0x2000)==0)
+						{
+							PA_YieldAbsolute();
+						}
 						ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
                     }
 				}
@@ -2692,7 +2696,10 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 					{
 						ids.appendUTF16String(@"");
 						for(i = 0 ; i < [people count] ; ++i){
-                            PA_YieldAbsolute();
+							if((i % 0x2000)==0)
+							{
+								PA_YieldAbsolute();
+							}
 							ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
                         }
 					}
@@ -2712,7 +2719,10 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 					{
 						ids.appendUTF16String(@"");
 						for(i = 0 ; i < [people count] ; ++i){
-                            PA_YieldAbsolute();
+							if((i % 0x2000)==0)
+							{
+								PA_YieldAbsolute();
+							}
 							ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
                         }
 					}
@@ -2733,7 +2743,10 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 				{	
 					ids.appendUTF16String(@"");
 					for(i = 0 ; i < [groups count] ; ++i){
-                        PA_YieldAbsolute();
+						if((i % 0x2000)==0)
+						{
+							PA_YieldAbsolute();
+						}
 						ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
                     }
 				}
@@ -2752,7 +2765,10 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 						ids.appendUTF16String(@"");
 						for(i = 0 ; i < [groups count] ; ++i)
                         {
-                            PA_YieldAbsolute();
+													if((i % 0x2000)==0)
+													{
+														PA_YieldAbsolute();
+													}
 							ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
                         }
 					}
@@ -2773,7 +2789,10 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 						ids.appendUTF16String(@"");
 						for(i = 0 ; i < [groups count] ; ++i)
                         {
-                            PA_YieldAbsolute();
+													if((i % 0x2000)==0)
+													{
+														PA_YieldAbsolute();
+													}
 							ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
                         }
 					}
@@ -2912,7 +2931,10 @@ void AB_Get_parent_groups(sLONG_PTR *pResult, PackagePtr pParams)
 			groups.appendUTF16String(@"");
 			for( i = 0; i < [parentGroups count]; ++i )
 			{
-                PA_YieldAbsolute();
+				if((i % 0x2000)==0)
+				{
+					PA_YieldAbsolute();
+				}
 				groups.appendUTF16String([[parentGroups objectAtIndex:i]valueForProperty:@"UID"]);
 			}
 			success = 1;
@@ -3148,7 +3170,10 @@ void AB_GET_GROUP_GROUPS(sLONG_PTR *pResult, PackagePtr pParams)
 				Param2.appendUTF16String(@"");				
 				for( i = 0; i < [groups count]; ++i )
 				{
-                    PA_YieldAbsolute();
+					if((i % 0x2000)==0)
+					{
+						PA_YieldAbsolute();
+					}
 					Param2.appendUTF16String([[groups objectAtIndex:i] valueForProperty:kABUIDProperty]);
 				}
 			}
@@ -3185,7 +3210,10 @@ void AB_GET_PERSON_GROUPS(sLONG_PTR *pResult, PackagePtr pParams)
 				Param2.appendUTF16String(@"");				
 				for( i = 0; i < [groups count]; ++i )
 				{
-                    PA_YieldAbsolute();
+					if((i % 0x2000)==0)
+					{
+						PA_YieldAbsolute();
+					}
 					Param2.appendUTF16String([[groups objectAtIndex:i] valueForProperty:kABUIDProperty]);
 				}
 			}
