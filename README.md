@@ -16,3 +16,5 @@ Access "contacts" via the [Address Book API](https://developer.apple.com/library
 ### Releases
 
 [3.4](https://github.com/miyako/4d-plugin-address-book/releases/tag/3.4)
+
++**NOTE**: you should not call ``AB Set notification method`` during ``On Exit``. the monitoring process should automatically kill itself on termination.
