@@ -12,9 +12,14 @@
 #include "4DPluginAPI.h"
 #include "4DPlugin.h"
 
-#pragma mark -
+#define CALLBACK_IN_NEW_PROCESS 0
+#define CALLBACK_SLEEP_TIME 59
 
-@interface Listener : NSObject {
+std::mutex globalMutex;
+std::mutex globalMutex0;
+
+@interface Listener : NSObject
+{
 
 }
 - (id)init;
@@ -22,18 +27,25 @@
 - (void)addressbookChanged:(NSNotification *)notification;
 @end
 
-namespace AB {
+namespace AB
+{
     Listener *listener = nil;
-    process_number_t METHOD_PROCESS_ID = 0;
-    process_stack_size_t STACK_SIZE = 512*1024;
-    process_name_t PROCESS_NAME = (PA_Unichar *)"$\0A\0D\0D\0R\0E\0S\0S\0_\0B\0O\0O\0K\0\0\0";
+    
+    //constants
+    process_name_t MONITOR_PROCESS_NAME = (PA_Unichar *)"$\0A\0D\0D\0R\0E\0S\0S\0_\0B\0O\0O\0K\0\0\0";
+    process_stack_size_t MONITOR_PROCESS_STACK_SIZE = 0;
+    
+    //context management
+    std::vector<CUTF16String> INSERT_RECORDS;
+    std::vector<CUTF16String> UPDATE_RECORDS;
+    std::vector<CUTF16String> DELETE_RECORDS;
+    
+    //callback management
     C_TEXT LISTENER_METHOD;
-    C_TEXT INSERT_RECORDS;
-    C_TEXT UPDATE_RECORDS;
-    C_TEXT DELETE_RECORDS;
-    method_id_t METHOD_ID = 0;
+    process_number_t METHOD_PROCESS_ID = 0;
     bool PROCESS_SHOULD_TERMINATE = false;
-    bool PROCESS_SHOULD_EXECUTE_METHOD = false;
+    
+    bool PROCESS_SHOULD_RESUME = false;
 }
 
 @implementation Listener
@@ -96,23 +108,53 @@ namespace AB {
 		}
 	}
     
-    AB::INSERT_RECORDS.setUTF16String((NSString *)_insertRecords);
-    AB::UPDATE_RECORDS.setUTF16String((NSString *)_updateRecords);
-    AB::DELETE_RECORDS.setUTF16String((NSString *)_deleteRecords);
+    CUTF16String ir, ur, dr;
+    
+    uint32_t len = [_insertRecords length];
+    uint32_t size = (len * sizeof(PA_Unichar)) + sizeof(PA_Unichar);
+    std::vector<uint8_t> buf(size);
+    if([_insertRecords getCString:(char *)&buf[0] maxLength:size encoding:NSUnicodeStringEncoding])
+    {
+        ir = CUTF16String((const PA_Unichar *)&buf[0], len);
+    }
 
-	[_insertRecords release];
-	[_updateRecords release];
-	[_deleteRecords release];
+    len = [_updateRecords length];
+    size = (len * sizeof(PA_Unichar)) + sizeof(PA_Unichar);
+    buf.resize(size);
+    if([_updateRecords getCString:(char *)&buf[0] maxLength:size encoding:NSUnicodeStringEncoding])
+    {
+        ur = CUTF16String((const PA_Unichar *)&buf[0], len);
+    }
+
+    len = [_deleteRecords length];
+    size = (len * sizeof(PA_Unichar)) + sizeof(PA_Unichar);
+    buf.resize(size);
+    if([_deleteRecords getCString:(char *)&buf[0] maxLength:size encoding:NSUnicodeStringEncoding])
+    {
+        dr = CUTF16String((const PA_Unichar *)&buf[0], len);
+    }
+
+    [_insertRecords release];
+    [_updateRecords release];
+    [_deleteRecords release];
     
-    AB::PROCESS_SHOULD_EXECUTE_METHOD = true;
-    
-    PA_UnfreezeProcess(AB::METHOD_PROCESS_ID);
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex);
+        
+        AB::INSERT_RECORDS.push_back(ir);
+        AB::UPDATE_RECORDS.push_back(ur);
+        AB::DELETE_RECORDS.push_back(dr);
+    }
+
+    AB::PROCESS_SHOULD_RESUME = true;
 }
 @end
 
 #pragma mark -
 
-bool IsProcessOnExit(){    
+bool IsProcessOnExit()
+{
     C_TEXT name;
     PA_long32 state, time;
     PA_GetProcessInfo(PA_GetCurrentProcessNumber(), name, &state, &time);
@@ -121,18 +163,21 @@ bool IsProcessOnExit(){
     return (!procName.compare(exitProcName));
 }
 
-void OnStartup(){
+void OnStartup()
+{
 
 }
 
-void OnCloseProcess(){
-    if(IsProcessOnExit()){
-        PA_RunInMainProcess((PA_RunInMainProcessProcPtr)listenerLoopFinish, NULL); 
+void OnCloseProcess()
+{
+    if(IsProcessOnExit())
+    {
+        listenerLoopFinish();
     }
 }
 
-void generateUuid(C_TEXT &returnValue){
-
+void generateUuid(C_TEXT &returnValue)
+{
 #if VERSIONMAC
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 1080
     returnValue.setUTF16String([[[NSUUID UUID]UUIDString]stringByReplacingOccurrencesOfString:@"-" withString:@""]);
@@ -148,82 +193,220 @@ void generateUuid(C_TEXT &returnValue){
 
 #pragma mark -
 
-void listenerLoop(){
-    
-    AB::PROCESS_SHOULD_EXECUTE_METHOD = false;
-    AB::PROCESS_SHOULD_TERMINATE = false;
+void listenerLoop()
+{
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex);
         
-    while(!AB::PROCESS_SHOULD_TERMINATE)
-    { 
+        AB::listener = [[Listener alloc]init];
+        
+        AB::PROCESS_SHOULD_TERMINATE = false;
+    }
+    
+    while(!PA_IsProcessDying())
+    {
         PA_YieldAbsolute();
         
-        if(AB::PROCESS_SHOULD_EXECUTE_METHOD){
-            
-            AB::PROCESS_SHOULD_EXECUTE_METHOD = false;
-            
-            C_TEXT processName;
-            generateUuid(processName);
-            PA_NewProcess((void *)listenerLoopExecuteMethod, 
-                          AB::STACK_SIZE,
-                          (PA_Unichar *)processName.getUTF16StringPtr());        
-
+        bool PROCESS_SHOULD_RESUME;
+        bool PROCESS_SHOULD_TERMINATE;
+        
+        if(1)
+        {
+            std::lock_guard<std::mutex> lock(globalMutex);
+            PROCESS_SHOULD_RESUME = AB::PROCESS_SHOULD_RESUME;
+            PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
         }
-
-        if(!AB::PROCESS_SHOULD_TERMINATE){
-            PA_FreezeProcess(PA_GetCurrentProcessNumber());  
-        }else{
-            AB::METHOD_PROCESS_ID = 0;
+        
+        if(PROCESS_SHOULD_RESUME)
+        {
+            size_t TYPES;
+            
+            if(1)
+            {
+                std::lock_guard<std::mutex> lock(globalMutex);
+                TYPES = AB::INSERT_RECORDS.size();
+            }
+            
+            while(TYPES)
+            {
+                PA_YieldAbsolute();
+                
+                if(CALLBACK_IN_NEW_PROCESS)
+                {
+                    C_TEXT processName;
+                    generateUuid(processName);
+                    PA_NewProcess((void *)listenerLoopExecuteMethod,
+                                  AB::MONITOR_PROCESS_STACK_SIZE,
+                                  (PA_Unichar *)processName.getUTF16StringPtr());
+                }else
+                {
+                     listenerLoopExecuteMethod();
+                }
+                
+                if(PROCESS_SHOULD_TERMINATE)
+                    break;
+                
+                if(1)
+                {
+                    std::lock_guard<std::mutex> lock(globalMutex);
+                    TYPES = AB::INSERT_RECORDS.size();
+                    PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
+                }
+            }
+            
+            if(1)
+            {
+                std::lock_guard<std::mutex> lock(globalMutex);
+                AB::PROCESS_SHOULD_RESUME = false;
+            }
+            
+        }else
+        {
+            PA_PutProcessToSleep(PA_GetCurrentProcessNumber(), CALLBACK_SLEEP_TIME);
         }
+        
+        if(1)
+        {
+            std::lock_guard<std::mutex> lock(globalMutex);
+            PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
+        }
+        
+        if(PROCESS_SHOULD_TERMINATE)
+            break;
     }
+    
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex);
+        
+        AB::INSERT_RECORDS.clear();
+        AB::DELETE_RECORDS.clear();
+        AB::UPDATE_RECORDS.clear();
+        
+        AB::LISTENER_METHOD.setUTF16String((PA_Unichar *)"\0\0", 0);
+        
+        [AB::listener release];
+        
+        AB::METHOD_PROCESS_ID = 0;
+    }
+    
     PA_KillProcess();
 }
 
-void listenerLoopStart(){
-    if(!AB::METHOD_PROCESS_ID){
-        AB::listener = [[Listener alloc]init];
-        AB::METHOD_PROCESS_ID = PA_NewProcess((void *)listenerLoop, AB::STACK_SIZE, AB::PROCESS_NAME);
+void listenerLoopStart()
+{
+    std::lock_guard<std::mutex> lock(globalMutex0);
+    
+    if(!AB::METHOD_PROCESS_ID)
+    {
+        AB::METHOD_PROCESS_ID = PA_NewProcess((void *)listenerLoop,
+                                              AB::MONITOR_PROCESS_STACK_SIZE,
+                                              AB::MONITOR_PROCESS_NAME);
     }
 }
 
-void listenerLoopFinish(){
-    if(AB::METHOD_PROCESS_ID){
-        //set flags
+void listenerLoopFinish()
+{
+    std::lock_guard<std::mutex> lock(globalMutex);
+    
+    if(AB::METHOD_PROCESS_ID)
+    {
         AB::PROCESS_SHOULD_TERMINATE = true;
-        AB::PROCESS_SHOULD_EXECUTE_METHOD = false;
+        
         PA_YieldAbsolute();
-        AB::LISTENER_METHOD.setUTF16String((PA_Unichar *)"\0\0", 0);
-        AB::METHOD_ID = 0;
-        [AB::listener release];
-        //tell listener to die      
-//        while(AB::METHOD_PROCESS_ID){
-//            PA_YieldAbsolute();
-            PA_UnfreezeProcess(AB::METHOD_PROCESS_ID);
-//        }
+        
+        AB::PROCESS_SHOULD_RESUME = true;
     }
 } 
 
-void listenerLoopExecute(){
+void listenerLoopExecute()
+{
+    std::lock_guard<std::mutex> lock(globalMutex);
+    
     AB::PROCESS_SHOULD_TERMINATE = false;
-    AB::PROCESS_SHOULD_EXECUTE_METHOD = true;
-    PA_UnfreezeProcess(AB::METHOD_PROCESS_ID);
+    AB::PROCESS_SHOULD_RESUME = true;
 }
 
-void listenerLoopExecuteMethod(){
-    if(AB::METHOD_ID){
-        PA_Variable	params[3];
+void listenerLoopExecuteMethod()
+{
+    std::lock_guard<std::mutex> lock(globalMutex);
+    
+    std::vector<CUTF16String>::iterator ir = AB::INSERT_RECORDS.begin();
+    std::vector<CUTF16String>::iterator ur = AB::UPDATE_RECORDS.begin();
+    std::vector<CUTF16String>::iterator dr = AB::DELETE_RECORDS.begin();
+    
+    CUTF16String __INSERT_RECORDS = *ir;
+    CUTF16String __UPDATE_RECORDS = *ur;
+    CUTF16String __DELETE_RECORDS = *dr;
+    
+    method_id_t methodId = PA_GetMethodID((PA_Unichar *)AB::LISTENER_METHOD.getUTF16StringPtr());
+    
+    if(methodId)
+    {
+        PA_Variable    params[3];
         params[0] = PA_CreateVariable(eVK_Unistring);
         params[1] = PA_CreateVariable(eVK_Unistring);
         params[2] = PA_CreateVariable(eVK_Unistring);
-        PA_Unistring INSERT_RECORDS = PA_CreateUnistring((PA_Unichar *)AB::INSERT_RECORDS.getUTF16StringPtr());
-        PA_Unistring UPDATE_RECORDS = PA_CreateUnistring((PA_Unichar *)AB::UPDATE_RECORDS.getUTF16StringPtr());
-        PA_Unistring DELETE_RECORDS = PA_CreateUnistring((PA_Unichar *)AB::DELETE_RECORDS.getUTF16StringPtr());
+        
+        PA_Unistring INSERT_RECORDS = PA_CreateUnistring((PA_Unichar *)__INSERT_RECORDS.c_str());
+        PA_SetStringVariable(&params[0], &INSERT_RECORDS);
+        
+        PA_Unistring UPDATE_RECORDS = PA_CreateUnistring((PA_Unichar *)__UPDATE_RECORDS.c_str());
+        PA_SetStringVariable(&params[1], &UPDATE_RECORDS);
+        
+        PA_Unistring DELETE_RECORDS = PA_CreateUnistring((PA_Unichar *)__DELETE_RECORDS.c_str());
+        PA_SetStringVariable(&params[2], &DELETE_RECORDS);
+        
         PA_SetStringVariable(&params[0], &INSERT_RECORDS);
         PA_SetStringVariable(&params[1], &UPDATE_RECORDS);
         PA_SetStringVariable(&params[2], &DELETE_RECORDS);
-        PA_ExecuteMethodByID(AB::METHOD_ID, params, 3);
-        PA_DisposeUnistring(&INSERT_RECORDS);
-        PA_DisposeUnistring(&UPDATE_RECORDS);
-        PA_DisposeUnistring(&DELETE_RECORDS);
+        
+        AB::INSERT_RECORDS.erase(ir);
+        AB::UPDATE_RECORDS.erase(ur);
+        AB::DELETE_RECORDS.erase(dr);
+        
+        PA_ExecuteMethodByID(methodId, params, 3);
+        
+        PA_ClearVariable(&params[0]);
+        PA_ClearVariable(&params[1]);
+        PA_ClearVariable(&params[2]);
+
+    }else
+    {
+        PA_Variable    params[4];
+        params[1] = PA_CreateVariable(eVK_Unistring);
+        params[2] = PA_CreateVariable(eVK_Unistring);
+        params[3] = PA_CreateVariable(eVK_Unistring);
+        
+        params[0] = PA_CreateVariable(eVK_Unistring);
+        PA_Unistring method = PA_CreateUnistring((PA_Unichar *)AB::LISTENER_METHOD.getUTF16StringPtr());
+        PA_SetStringVariable(&params[0], &method);
+        
+        PA_Unistring INSERT_RECORDS = PA_CreateUnistring((PA_Unichar *)__INSERT_RECORDS.c_str());
+        PA_SetStringVariable(&params[1], &INSERT_RECORDS);
+        
+        PA_Unistring UPDATE_RECORDS = PA_CreateUnistring((PA_Unichar *)__UPDATE_RECORDS.c_str());
+        PA_SetStringVariable(&params[2], &UPDATE_RECORDS);
+        
+        PA_Unistring DELETE_RECORDS = PA_CreateUnistring((PA_Unichar *)__DELETE_RECORDS.c_str());
+        PA_SetStringVariable(&params[3], &DELETE_RECORDS);
+        
+        PA_SetStringVariable(&params[1], &INSERT_RECORDS);
+        PA_SetStringVariable(&params[2], &UPDATE_RECORDS);
+        PA_SetStringVariable(&params[3], &DELETE_RECORDS);
+        
+        AB::INSERT_RECORDS.erase(ir);
+        AB::UPDATE_RECORDS.erase(ur);
+        AB::DELETE_RECORDS.erase(dr);
+        
+        /* execute method */
+        PA_ExecuteCommandByID(1007, params, 4);
+        
+        PA_ClearVariable(&params[0]);
+        PA_ClearVariable(&params[1]);
+        PA_ClearVariable(&params[2]);
+        PA_ClearVariable(&params[3]);
     }
 }
 
@@ -462,25 +645,28 @@ ABPerson *_GetPersonForUniqueId(NSString *uniqueId)
 	
 	if(uniqueId)
 	{
-		//this method raised exception if the uuid is malformed
-		
-		NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",
-								  @"[:Hex_Digit:]{8}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{12}:ABPerson"];
-		
-		if([predicate evaluateWithObject:uniqueId])
-		{
-			ABRecord *record = [[ABAddressBook sharedAddressBook]recordForUniqueId:uniqueId];
-			if(!record)
-			{
-				NSLog(@"The person ID is invalid: %@", uniqueId);
-			}else{
-				person = (ABPerson *)record;	
-			}		
-		}else{
-			NSLog(@"The person ID is malformed: %@", uniqueId);
-		}	
-		
+        @autoreleasepool
+        {
+            //this method raised exception if the uuid is malformed
+            
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",
+                                      @"[:Hex_Digit:]{8}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{12}:ABPerson"];
+            
+            if([predicate evaluateWithObject:uniqueId])
+            {
+                ABRecord *record = [[ABAddressBook sharedAddressBook]recordForUniqueId:uniqueId];
+                if(!record)
+                {
+                    NSLog(@"The person ID is invalid: %@", uniqueId);
+                }else{
+                    person = (ABPerson *)record;
+                }
+            }else{
+                NSLog(@"The person ID is malformed: %@", uniqueId);
+            }
+        }
 	}
+    
 	return person;
 }
 
@@ -490,24 +676,26 @@ ABGroup *_GetGroupForUniqueId(NSString *uniqueId)
 	
 	if(uniqueId)
 	{
-		//this method raised exception if the uuid is malformed
-		
-		NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",
-								  @"[:Hex_Digit:]{8}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{12}:ABGroup"];
-		
-		if([predicate evaluateWithObject:uniqueId])
-		{
-			ABRecord *record = [[ABAddressBook sharedAddressBook]recordForUniqueId:uniqueId];
-			if(!record)
-			{
-				NSLog(@"The group ID is invalid: %@", uniqueId);
-			}else{
-				group = (ABGroup *)record;		
-			}		
-		}else{
-			NSLog(@"The group ID is malformed: %@", uniqueId);
-		}
-		
+        @autoreleasepool
+        {
+            //this method raised exception if the uuid is malformed
+            
+            NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",
+                                      @"[:Hex_Digit:]{8}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{4}-[:Hex_Digit:]{12}:ABGroup"];
+            
+            if([predicate evaluateWithObject:uniqueId])
+            {
+                ABRecord *record = [[ABAddressBook sharedAddressBook]recordForUniqueId:uniqueId];
+                if(!record)
+                {
+                    NSLog(@"The group ID is invalid: %@", uniqueId);
+                }else{
+                    group = (ABGroup *)record;
+                }
+            }else{
+                NSLog(@"The group ID is malformed: %@", uniqueId);
+            }
+        }
 	}
 	return group;
 }
@@ -516,32 +704,35 @@ ABSearchComparison _SearchComparisonForName(NSString *name)
 {
 	ABSearchComparison comparison = kABEqual;
 	
-	NSArray *searchComparisons = [NSArray arrayWithObjects:
-								  @"Equal", @"NotEqual", @"DoesNotContainSubString", @"PrefixMatch", @"ContainsSubString", @"SuffixMatch", nil];
-	
-	NSUInteger pid = [searchComparisons indexOfObject:name];
-	
-	switch (pid)
-	{
-		case 0://Equal
-			comparison = kABEqualCaseInsensitive;
-			break;
-		case 1://NotEqual
-			comparison = kABNotEqualCaseInsensitive;
-			break;
-		case 2://DoesNotContainSubString
-			comparison = kABDoesNotContainSubStringCaseInsensitive;
-			break;
-		case 3://PrefixMatch
-			comparison = kABPrefixMatchCaseInsensitive;
-			break;
-		case 4://ContainsSubString
-			comparison = kABContainsSubStringCaseInsensitive;
-			break;
-		case 5://SuffixMatch
-			comparison = kABSuffixMatchCaseInsensitive;
-			break;															
-	}	
+    @autoreleasepool
+    {
+        NSArray *searchComparisons = @[@"Equal", @"NotEqual", @"DoesNotContainSubString", @"PrefixMatch", @"ContainsSubString", @"SuffixMatch"];
+        
+        NSUInteger pid = [searchComparisons indexOfObject:name];
+        
+        switch (pid)
+        {
+            case 0://Equal
+                comparison = kABEqualCaseInsensitive;
+                break;
+            case 1://NotEqual
+                comparison = kABNotEqualCaseInsensitive;
+                break;
+            case 2://DoesNotContainSubString
+                comparison = kABDoesNotContainSubStringCaseInsensitive;
+                break;
+            case 3://PrefixMatch
+                comparison = kABPrefixMatchCaseInsensitive;
+                break;
+            case 4://ContainsSubString
+                comparison = kABContainsSubStringCaseInsensitive;
+                break;
+            case 5://SuffixMatch
+                comparison = kABSuffixMatchCaseInsensitive;
+                break;
+        }
+    }
+    
 	return comparison;
 }
 
@@ -549,32 +740,35 @@ NSString *_AddressKeyForName(NSString *name)
 {
 	NSString *key = nil;//this value can be nil
 	
-	NSArray *addressKeys = [NSArray arrayWithObjects:
-							@"Street", @"City", @"State", @"ZIP", @"Country", @"CountryCode", nil];
-	
-	NSUInteger pid = [addressKeys indexOfObject:name];
-	
-	switch (pid)
-	{
-		case 0://Street
-			key = kABAddressStreetKey;
-			break;
-		case 1://City
-			key = kABAddressCityKey;
-			break;
-		case 2://State
-			key = kABAddressStateKey;
-			break;
-		case 3://ZIP
-			key = kABAddressZIPKey;
-			break;
-		case 4://Country
-			key = kABAddressCountryKey;
-			break;
-		case 5://CountryCode
-			key = kABAddressCountryCodeKey;
-			break;																		
-	}	
+    @autoreleasepool
+    {
+        NSArray *addressKeys = @[@"Street", @"City", @"State", @"ZIP", @"Country", @"CountryCode"];
+        
+        NSUInteger pid = [addressKeys indexOfObject:name];
+        
+        switch (pid)
+        {
+            case 0://Street
+                key = kABAddressStreetKey;
+                break;
+            case 1://City
+                key = kABAddressCityKey;
+                break;
+            case 2://State
+                key = kABAddressStateKey;
+                break;
+            case 3://ZIP
+                key = kABAddressZIPKey;
+                break;
+            case 4://Country
+                key = kABAddressCountryKey;
+                break;
+            case 5://CountryCode
+                key = kABAddressCountryCodeKey;
+                break;
+        }
+    }
+    
 	return key;
 }
 
@@ -591,143 +785,147 @@ NSString *_PropertyForName(NSString *name)
 {
 	NSString *property = @"";//this value cannot be null
 	
-	NSArray *PropertyNames = [NSArray arrayWithObjects:
-							  @"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname", @"MaidenName",
-							  @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department", @"MiddleName",
-							  @"MiddleNamePhonetic", @"Title", @"Suffix", @"URLs", @"CalendarURI", @"Email",	
-							  @"Address", @"OtherDates", @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant",
-							  @"MSNInstant", @"YahooInstant", @"ICQInstant", @"ModificationDate", @"CreationDate", @"UID",		
-							  nil];
-	
-	NSUInteger pid = [PropertyNames indexOfObject:name];
-	
-	switch (pid)
-	{
-		case 0://FirstName
-			property = kABFirstNameProperty;
-			break;
-		case 1://LastName
-			property = kABLastNameProperty;
-			break;
-		case 2://FirstNamePhonetic
-			property = kABFirstNamePhoneticProperty;
-			break;
-		case 3://LastNamePhonetic
-			property = kABLastNamePhoneticProperty;
-			break;
-		case 4://Nickname
-			property = kABNicknameProperty;
-			break;
-		case 5://MaidenName
-			property = kABMaidenNameProperty;
-			break;
-			
-		case 6://Birthday
-			property = kABBirthdayProperty;
-			break;
-		case 7://Organization
-			property = kABOrganizationProperty;
-			break;
-		case 8://JobTitle
-			property = kABJobTitleProperty;
-			break;
-		case 9://Note
-			property = kABNoteProperty;
-			break;
-		case 10://Department
-			property = kABDepartmentProperty;
-			break;
-		case 11://MiddleName
-			property = kABMiddleNameProperty;
-			break;
-			
-		case 12://MiddleNamePhonetic
-			property = kABMiddleNamePhoneticProperty;
-			break;
-		case 13://Title
-			property = kABTitleProperty;
-			break;
-		case 14://Suffix
-			property = kABSuffixProperty;
-			break;
-		case 15://URLs
-			property = kABURLsProperty;
-			break;
-		case 16://CalendarURI
-			property = kABCalendarURIsProperty;
-			break;
-		case 17://Email
-			property = kABEmailProperty;
-			break;	
-			
-		case 18://Address
-			property = kABAddressProperty;
-			break;
-		case 19://OtherDates
-			property = kABOtherDatesProperty;
-			break;
-		case 20://RelatedNames
-			property = kABRelatedNamesProperty;
-			break;
-		case 21://Phone
-			property = kABPhoneProperty;
-			break;
-/*		case 22://AIMInstant
-			property = kABAIMInstantProperty;
-			break;
-		case 23://JabberInstant
-			property = kABJabberInstantProperty;
-			break;	
-			
-		case 24://MSNInstant
-			property = kABMSNInstantProperty;
-			break;
-		case 25://YahooInstant
-			property = kABYahooInstantProperty;
-			break;
-		case 26://ICQInstant
-			property = kABICQInstantProperty;
-			break;
- */
-		case 27://ModificationDate
-			property = kABModificationDateProperty;
-			break;
-		case 28://CreationDate
-			property = kABCreationDateProperty;
-			break;
-		case 29://UID
-			property = kABUIDProperty;
-			break;			
-	}	
+    @autoreleasepool
+    {
+        NSArray *PropertyNames = @[@"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname", @"MaidenName",
+                                   @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department", @"MiddleName",
+                                   @"MiddleNamePhonetic", @"Title", @"Suffix", @"URLs", @"CalendarURI", @"Email",
+                                   @"Address", @"OtherDates", @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant",
+                                   @"MSNInstant", @"YahooInstant", @"ICQInstant", @"ModificationDate", @"CreationDate", @"UID"];
+        
+        NSUInteger pid = [PropertyNames indexOfObject:name];
+        
+        switch (pid)
+        {
+            case 0://FirstName
+                property = kABFirstNameProperty;
+                break;
+            case 1://LastName
+                property = kABLastNameProperty;
+                break;
+            case 2://FirstNamePhonetic
+                property = kABFirstNamePhoneticProperty;
+                break;
+            case 3://LastNamePhonetic
+                property = kABLastNamePhoneticProperty;
+                break;
+            case 4://Nickname
+                property = kABNicknameProperty;
+                break;
+            case 5://MaidenName
+                property = kABMaidenNameProperty;
+                break;
+                
+            case 6://Birthday
+                property = kABBirthdayProperty;
+                break;
+            case 7://Organization
+                property = kABOrganizationProperty;
+                break;
+            case 8://JobTitle
+                property = kABJobTitleProperty;
+                break;
+            case 9://Note
+                property = kABNoteProperty;
+                break;
+            case 10://Department
+                property = kABDepartmentProperty;
+                break;
+            case 11://MiddleName
+                property = kABMiddleNameProperty;
+                break;
+                
+            case 12://MiddleNamePhonetic
+                property = kABMiddleNamePhoneticProperty;
+                break;
+            case 13://Title
+                property = kABTitleProperty;
+                break;
+            case 14://Suffix
+                property = kABSuffixProperty;
+                break;
+            case 15://URLs
+                property = kABURLsProperty;
+                break;
+            case 16://CalendarURI
+                property = kABCalendarURIsProperty;
+                break;
+            case 17://Email
+                property = kABEmailProperty;
+                break;
+                
+            case 18://Address
+                property = kABAddressProperty;
+                break;
+            case 19://OtherDates
+                property = kABOtherDatesProperty;
+                break;
+            case 20://RelatedNames
+                property = kABRelatedNamesProperty;
+                break;
+            case 21://Phone
+                property = kABPhoneProperty;
+                break;
+                /*        case 22://AIMInstant
+                 property = kABAIMInstantProperty;
+                 break;
+                 case 23://JabberInstant
+                 property = kABJabberInstantProperty;
+                 break;
+                 
+                 case 24://MSNInstant
+                 property = kABMSNInstantProperty;
+                 break;
+                 case 25://YahooInstant
+                 property = kABYahooInstantProperty;
+                 break;
+                 case 26://ICQInstant
+                 property = kABICQInstantProperty;
+                 break;
+                 */
+            case 27://ModificationDate
+                property = kABModificationDateProperty;
+                break;
+            case 28://CreationDate
+                property = kABCreationDateProperty;
+                break;
+            case 29://UID
+                property = kABUIDProperty;
+                break;
+        }
+    }
+    
 	return property;			
 }
 
 id _ValueForProperty(NSString *string, NSString *property)
 {
 	id value = string;
+    
+    @autoreleasepool
+    {
+        NSArray *PropertyNames = @[@"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname", @"MaidenName",
+                                   @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department", @"MiddleName",
+                                   @"MiddleNamePhonetic", @"Title", @"Suffix", @"URLs", @"CalendarURI", @"Email",
+                                   @"Address", @"OtherDates", @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant",
+                                   @"MSNInstant", @"YahooInstant", @"ICQInstant", @"ModificationDate", @"CreationDate", @"UID"];
+        
+        NSUInteger pid = [PropertyNames indexOfObject:property];
+        
+        switch (pid)
+        {
+            case 6://Birthday
+                value = [NSDate dateWithString:string];//this value can be nil
+                break;
+            case 27://ModificationDate
+                value = [NSDate dateWithString:string];//this value can be nil
+                break;
+            case 28://CreationDate
+                value = [NSDate dateWithString:string];//this value can be nil
+                break;
+        }
+    }
 	
-	NSArray *PropertyNames = [NSArray arrayWithObjects:
-							  @"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname", @"MaidenName",
-							  @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department", @"MiddleName",
-							  @"MiddleNamePhonetic", @"Title", @"Suffix", @"URLs", @"CalendarURI", @"Email",	
-							  @"Address", @"OtherDates", @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant",
-							  @"MSNInstant", @"YahooInstant", @"ICQInstant", @"ModificationDate", @"CreationDate", @"UID",		
-							  nil];
-	
-	NSUInteger pid = [PropertyNames indexOfObject:property];
-	
-	switch (pid)
-	{
-		case 6://Birthday
-			value = [NSDate dateWithString:string];//this value can be nil
-			break;
-		case 27://ModificationDate
-			value = [NSDate dateWithString:string];//this value can be nil
-			break;
-		case 28://CreationDate
-			value = [NSDate dateWithString:string];//this value can be nil
-			break;			
-	}	
 	return value;			
 }
 
@@ -818,7 +1016,6 @@ void AB_LAUNCH(sLONG_PTR *pResult, PackagePtr pParams)
 }
 
 // ------------------------------------ People ------------------------------------
-
 
 void AB_Create_person(sLONG_PTR *pResult, PackagePtr pParams)
 {
@@ -2855,52 +3052,32 @@ void AB_Get_default_name_ordering(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Set_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT returnValue;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	NSString *methodName = Param1.copyUTF16String();
-	
-	if(!Param1.getUTF16Length()){
-        //empty string passed
-        returnValue.setIntValue(1);
-        if(AB::LISTENER_METHOD.getUTF16Length()){
-            PA_RunInMainProcess((PA_RunInMainProcessProcPtr)listenerLoopFinish, NULL);
+    C_LONGINT returnValue;
+    
+    if(!IsProcessOnExit())
+    {
+        if(1)
+        {
+            std::lock_guard<std::mutex> lock(globalMutex);
+            AB::LISTENER_METHOD.fromParamAtIndex(pParams, 1);
         }
-		
-	}else{
-		
-		int methodId = PA_GetMethodID((PA_Unichar *)Param1.getUTF16StringPtr());
-		if(methodId){
-			returnValue.setIntValue(1);
-            if(methodId != AB::METHOD_ID){
-                AB::LISTENER_METHOD.setUTF16String(Param1.getUTF16StringPtr(), Param1.getUTF16Length());
-                AB::METHOD_ID = methodId;
-                if(!AB::listener){
-                    PA_RunInMainProcess((PA_RunInMainProcessProcPtr)listenerLoopStart, NULL);
-                }
-            }
-		}
-	}
-	
-	[methodName release];
-
+        listenerLoopStart();
+        returnValue.setIntValue(1);
+    }
+    
 	returnValue.setReturn(pResult);
 }
 
 void AB_Get_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT returnValue;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-    
-	int success = 0;
-    
-    AB::LISTENER_METHOD.toParamAtIndex(pParams, 1);
-    
-	returnValue.setIntValue(success);
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex);
+        AB::LISTENER_METHOD.toParamAtIndex(pParams, 1);
+    }
+
+    C_LONGINT returnValue;
+    returnValue.setIntValue(1);
     returnValue.setReturn(pResult);
 }
 
@@ -3227,18 +3404,13 @@ void AB_GET_PERSON_GROUPS(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_REMOVE_FROM_PRIVACY_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	if(NSClassFromString(@"NSUserNotificationCenter")){
-	
-		NSMutableArray * arguments = [[NSMutableArray alloc]init];
-		
-		[arguments addObject:@"reset"];
-		[arguments addObject:@"AddressBook"];	
-		
-		[NSTask launchedTaskWithLaunchPath:@"/usr/bin/tccutil" arguments:arguments];
-		
-		[arguments release];		
-	
-	}
+    @autoreleasepool
+    {
+        if(NSClassFromString(@"NSUserNotificationCenter"))
+        {
+            [NSTask launchedTaskWithLaunchPath:@"/usr/bin/tccutil" arguments:@[@"reset", @"AddressBook"]];
+        }
+    }
 }
 
 void AB_Is_access_denied(sLONG_PTR *pResult, PackagePtr pParams)

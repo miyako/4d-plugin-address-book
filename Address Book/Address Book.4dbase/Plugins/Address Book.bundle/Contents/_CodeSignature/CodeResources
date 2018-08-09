@@ -100,27 +100,18 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			631UQAaPG0w4pA7f8gbcGSkFglw=
+			RhkdlzBbrrtcPZqu1ZtI/HCDyz4=
 			</data>
 			<key>optional</key>
 			<true/>
 		</dict>
 		<key>Resources/constants.xlf</key>
 		<data>
-		ukTGGv7LPCljvwFyQQJrQAN+hvE=
+		loILPr8EbN5J1bZR+6OYyqn5msA=
 		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
-		<key>MacOS/Address Book.html</key>
-		<dict>
-			<key>cdhash</key>
-			<data>
-			CxRWYtsWG+RGKH+8jtKsGTQuOBk=
-			</data>
-			<key>requirement</key>
-			<string>identifier "Address Book" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = Y69CWUC25B</string>
-		</dict>
 		<key>QuickLook/Thumbnail.png</key>
 		<dict>
 			<key>hash</key>
@@ -389,11 +380,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			631UQAaPG0w4pA7f8gbcGSkFglw=
+			RhkdlzBbrrtcPZqu1ZtI/HCDyz4=
 			</data>
 			<key>hash2</key>
 			<data>
-			uUDQ4aGHlJN7IZbpZkednvVArZ8IXrGNl6RatZQLEb0=
+			E7/MXTFxDfKhHg1NXKaByuj8bQMulwzjUgs+3t0SHMU=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -402,11 +393,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			ukTGGv7LPCljvwFyQQJrQAN+hvE=
+			loILPr8EbN5J1bZR+6OYyqn5msA=
 			</data>
 			<key>hash2</key>
 			<data>
-			aVvxQBYXCoSooLSZyc1YHm9K5rbqsYN85kT37gMx7ww=
+			OibhxDU3k/wEiJoTl95wN2RMuJExxpFl3QPU2nz32qA=
 			</data>
 		</dict>
 		<key>Windows/Address Book.4DX</key>
@@ -420,17 +411,6 @@
 			rp5mwPoToTOMBrO5g9ATVRBDkkR1XpJE6MF06FX5mo0=
 			</data>
 		</dict>
-		<key>Windows/Address Book.html</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			3f3hE90+GMuzyHmK9RVQvLK+Zs8=
-			</data>
-			<key>hash2</key>
-			<data>
-			EKLRdLPtg+PsdxOrCPdnhlHZLbWCJYLapu/sbQTYgHg=
-			</data>
-		</dict>
 		<key>Windows64/Address Book.4DX</key>
 		<dict>
 			<key>hash</key>
@@ -442,22 +422,11 @@
 			D81BlAXC8IYBjKsGDu0nx8Zm3OxlDG6/r2pFvj/FY7A=
 			</data>
 		</dict>
-		<key>Windows64/Address Book.html</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			3f3hE90+GMuzyHmK9RVQvLK+Zs8=
-			</data>
-			<key>hash2</key>
-			<data>
-			EKLRdLPtg+PsdxOrCPdnhlHZLbWCJYLapu/sbQTYgHg=
-			</data>
-		</dict>
 		<key>manifest.json</key>
 		<dict>
 			<key>cdhash</key>
 			<data>
-			As+4bc/Hf0tjoAk43DGrvAANuww=
+			NKWX4IjKP1eqDuL81Ala3V7ClaQ=
 			</data>
 			<key>requirement</key>
 			<string>identifier manifest and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = Y69CWUC25B</string>
@@ -480,6 +449,11 @@
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
+		</dict>
+		<key>^Resources/Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
 		</dict>
 		<key>^version.plist$</key>
 		<true/>
@@ -539,6 +513,11 @@
 			<true/>
 			<key>weight</key>
 			<real>1100</real>
+		</dict>
+		<key>^Resources/Base\.lproj/</key>
+		<dict>
+			<key>weight</key>
+			<real>1010</real>
 		</dict>
 		<key>^[^/]+$</key>
 		<dict>

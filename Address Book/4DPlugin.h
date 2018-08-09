@@ -12,6 +12,7 @@
 #define THIS_BUNDLE_ID @"com.4D.4DPlugin.AddressBook"
 #include <AddressBook/AddressBook.h>
 #include <AddressBook/ABAddressBookC.h>
+#include <mutex>
 #endif
 
 #define AB_PEOPLE					0
