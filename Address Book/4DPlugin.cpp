@@ -12,7 +12,7 @@
 #include "4DPluginAPI.h"
 #include "4DPlugin.h"
 
-#define CALLBACK_IN_NEW_PROCESS 1
+#define CALLBACK_IN_NEW_PROCESS 0
 #define CALLBACK_SLEEP_TIME 59
 
 @interface Listener : NSObject
