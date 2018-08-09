@@ -15,6 +15,8 @@ Access "contacts" via the [Address Book API](https://developer.apple.com/library
 
 ### Releases
 
+[4.1](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.1) queue callbacks
+
 [4.0](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.0)
 
 ![preemption xx](https://user-images.githubusercontent.com/1725068/41327179-4e839948-6efd-11e8-982b-a670d511e04f.png)
