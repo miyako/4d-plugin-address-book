@@ -12,11 +12,8 @@
 #include "4DPluginAPI.h"
 #include "4DPlugin.h"
 
-#define CALLBACK_IN_NEW_PROCESS 0
+#define CALLBACK_IN_NEW_PROCESS 1
 #define CALLBACK_SLEEP_TIME 59
-
-std::mutex globalMutex;
-std::mutex globalMutex0;
 
 @interface Listener : NSObject
 {
@@ -140,8 +137,6 @@ namespace AB
     
     if(1)
     {
-        std::lock_guard<std::mutex> lock(globalMutex);
-        
         AB::INSERT_RECORDS.push_back(ir);
         AB::UPDATE_RECORDS.push_back(ur);
         AB::DELETE_RECORDS.push_back(dr);
@@ -193,14 +188,25 @@ void generateUuid(C_TEXT &returnValue)
 
 #pragma mark -
 
+void listener_start()
+{
+    if(!AB::listener)
+    {
+        AB::listener = [[Listener alloc]init];
+    }
+}
+
+void listener_end()
+{
+    /* must do this in main process */
+    [AB::listener release];
+    AB::listener = nil;
+}
+
 void listenerLoop()
 {
     if(1)
     {
-        std::lock_guard<std::mutex> lock(globalMutex);
-        
-        AB::listener = [[Listener alloc]init];
-        
         AB::PROCESS_SHOULD_TERMINATE = false;
     }
     
@@ -213,7 +219,6 @@ void listenerLoop()
         
         if(1)
         {
-            std::lock_guard<std::mutex> lock(globalMutex);
             PROCESS_SHOULD_RESUME = AB::PROCESS_SHOULD_RESUME;
             PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
         }
@@ -224,7 +229,6 @@ void listenerLoop()
             
             if(1)
             {
-                std::lock_guard<std::mutex> lock(globalMutex);
                 TYPES = AB::INSERT_RECORDS.size();
             }
             
@@ -249,7 +253,6 @@ void listenerLoop()
                 
                 if(1)
                 {
-                    std::lock_guard<std::mutex> lock(globalMutex);
                     TYPES = AB::INSERT_RECORDS.size();
                     PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
                 }
@@ -257,7 +260,6 @@ void listenerLoop()
             
             if(1)
             {
-                std::lock_guard<std::mutex> lock(globalMutex);
                 AB::PROCESS_SHOULD_RESUME = false;
             }
             
@@ -268,7 +270,6 @@ void listenerLoop()
         
         if(1)
         {
-            std::lock_guard<std::mutex> lock(globalMutex);
             PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
         }
         
@@ -278,26 +279,22 @@ void listenerLoop()
     
     if(1)
     {
-        std::lock_guard<std::mutex> lock(globalMutex);
-        
         AB::INSERT_RECORDS.clear();
         AB::DELETE_RECORDS.clear();
         AB::UPDATE_RECORDS.clear();
         
         AB::LISTENER_METHOD.setUTF16String((PA_Unichar *)"\0\0", 0);
         
-        [AB::listener release];
-        
         AB::METHOD_PROCESS_ID = 0;
     }
+    
+    PA_RunInMainProcess((PA_RunInMainProcessProcPtr)listener_end, NULL);
     
     PA_KillProcess();
 }
 
 void listenerLoopStart()
 {
-    std::lock_guard<std::mutex> lock(globalMutex0);
-    
     if(!AB::METHOD_PROCESS_ID)
     {
         AB::METHOD_PROCESS_ID = PA_NewProcess((void *)listenerLoop,
@@ -308,8 +305,6 @@ void listenerLoopStart()
 
 void listenerLoopFinish()
 {
-    std::lock_guard<std::mutex> lock(globalMutex);
-    
     if(AB::METHOD_PROCESS_ID)
     {
         AB::PROCESS_SHOULD_TERMINATE = true;
@@ -322,16 +317,12 @@ void listenerLoopFinish()
 
 void listenerLoopExecute()
 {
-    std::lock_guard<std::mutex> lock(globalMutex);
-    
     AB::PROCESS_SHOULD_TERMINATE = false;
     AB::PROCESS_SHOULD_RESUME = true;
 }
 
 void listenerLoopExecuteMethod()
 {
-    std::lock_guard<std::mutex> lock(globalMutex);
-    
     std::vector<CUTF16String>::iterator ir = AB::INSERT_RECORDS.begin();
     std::vector<CUTF16String>::iterator ur = AB::UPDATE_RECORDS.begin();
     std::vector<CUTF16String>::iterator dr = AB::DELETE_RECORDS.begin();
@@ -3058,9 +3049,9 @@ void AB_Set_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
     {
         if(1)
         {
-            std::lock_guard<std::mutex> lock(globalMutex);
             AB::LISTENER_METHOD.fromParamAtIndex(pParams, 1);
         }
+        PA_RunInMainProcess((PA_RunInMainProcessProcPtr)listener_start, NULL);
         listenerLoopStart();
         returnValue.setIntValue(1);
     }
@@ -3072,7 +3063,6 @@ void AB_Get_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
 {
     if(1)
     {
-        std::lock_guard<std::mutex> lock(globalMutex);
         AB::LISTENER_METHOD.toParamAtIndex(pParams, 1);
     }
 
