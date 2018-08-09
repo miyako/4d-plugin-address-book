@@ -41,5 +41,3 @@ except
 * ``AB Set person image``
 
 * ``AB Set notification method``
-
-[3.4](https://github.com/miyako/4d-plugin-address-book/releases/tag/3.4)
