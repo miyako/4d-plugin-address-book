@@ -15,6 +15,12 @@
 #define CALLBACK_IN_NEW_PROCESS 0
 #define CALLBACK_SLEEP_TIME 59
 
+std::mutex globalMutex;/* for INSERT_RECORDS,UPDATE_RECORDS,DELETE_RECORDS */
+std::mutex globalMutex1;/* for METHOD_PROCESS_ID */
+std::mutex globalMutex2;/* for LISTENER_METHOD */
+std::mutex globalMutex3;/* PROCESS_SHOULD_TERMINATE */
+std::mutex globalMutex4;/* PROCESS_SHOULD_RESUME */
+
 @interface Listener : NSObject
 {
 
@@ -41,7 +47,6 @@ namespace AB
     C_TEXT LISTENER_METHOD;
     process_number_t METHOD_PROCESS_ID = 0;
     bool PROCESS_SHOULD_TERMINATE = false;
-    
     bool PROCESS_SHOULD_RESUME = false;
 }
 
@@ -137,12 +142,20 @@ namespace AB
     
     if(1)
     {
+        std::lock_guard<std::mutex> lock(globalMutex);
+        
         AB::INSERT_RECORDS.push_back(ir);
         AB::UPDATE_RECORDS.push_back(ur);
         AB::DELETE_RECORDS.push_back(dr);
     }
 
-    AB::PROCESS_SHOULD_RESUME = true;
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex4);
+        
+        AB::PROCESS_SHOULD_RESUME = true;
+    }
+
 }
 @end
 
@@ -207,6 +220,8 @@ void listenerLoop()
 {
     if(1)
     {
+        std::lock_guard<std::mutex> lock(globalMutex3);
+        
         AB::PROCESS_SHOULD_TERMINATE = false;
     }
     
@@ -229,6 +244,8 @@ void listenerLoop()
             
             if(1)
             {
+                std::lock_guard<std::mutex> lock(globalMutex);
+                
                 TYPES = AB::INSERT_RECORDS.size();
             }
             
@@ -253,6 +270,8 @@ void listenerLoop()
                 
                 if(1)
                 {
+                    std::lock_guard<std::mutex> lock(globalMutex);
+                    
                     TYPES = AB::INSERT_RECORDS.size();
                     PROCESS_SHOULD_TERMINATE = AB::PROCESS_SHOULD_TERMINATE;
                 }
@@ -260,6 +279,8 @@ void listenerLoop()
             
             if(1)
             {
+                std::lock_guard<std::mutex> lock(globalMutex4);
+                
                 AB::PROCESS_SHOULD_RESUME = false;
             }
             
@@ -279,11 +300,23 @@ void listenerLoop()
     
     if(1)
     {
+        std::lock_guard<std::mutex> lock(globalMutex);
+        
         AB::INSERT_RECORDS.clear();
         AB::DELETE_RECORDS.clear();
         AB::UPDATE_RECORDS.clear();
+    }
+    
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex2);
         
         AB::LISTENER_METHOD.setUTF16String((PA_Unichar *)"\0\0", 0);
+    }
+
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex1);
         
         AB::METHOD_PROCESS_ID = 0;
     }
@@ -297,6 +330,8 @@ void listenerLoopStart()
 {
     if(!AB::METHOD_PROCESS_ID)
     {
+        std::lock_guard<std::mutex> lock(globalMutex1);
+        
         AB::METHOD_PROCESS_ID = PA_NewProcess((void *)listenerLoop,
                                               AB::MONITOR_PROCESS_STACK_SIZE,
                                               AB::MONITOR_PROCESS_NAME);
@@ -307,29 +342,68 @@ void listenerLoopFinish()
 {
     if(AB::METHOD_PROCESS_ID)
     {
-        AB::PROCESS_SHOULD_TERMINATE = true;
+        if(1)
+        {
+            std::lock_guard<std::mutex> lock(globalMutex3);
+            
+            AB::PROCESS_SHOULD_TERMINATE = true;
+        }
         
         PA_YieldAbsolute();
         
-        AB::PROCESS_SHOULD_RESUME = true;
+        if(1)
+        {
+            std::lock_guard<std::mutex> lock(globalMutex4);
+
+            AB::PROCESS_SHOULD_RESUME = true;
+        }
     }
 } 
 
 void listenerLoopExecute()
 {
-    AB::PROCESS_SHOULD_TERMINATE = false;
-    AB::PROCESS_SHOULD_RESUME = true;
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex3);
+        
+        AB::PROCESS_SHOULD_TERMINATE = false;
+    }
+
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex4);
+        
+        AB::PROCESS_SHOULD_RESUME = true;
+    }
+
 }
 
 void listenerLoopExecuteMethod()
 {
-    std::vector<CUTF16String>::iterator ir = AB::INSERT_RECORDS.begin();
-    std::vector<CUTF16String>::iterator ur = AB::UPDATE_RECORDS.begin();
-    std::vector<CUTF16String>::iterator dr = AB::DELETE_RECORDS.begin();
+    CUTF16String __INSERT_RECORDS;
+    CUTF16String __UPDATE_RECORDS;
+    CUTF16String __DELETE_RECORDS;
     
-    CUTF16String __INSERT_RECORDS = *ir;
-    CUTF16String __UPDATE_RECORDS = *ur;
-    CUTF16String __DELETE_RECORDS = *dr;
+    if(1)
+    {
+        std::lock_guard<std::mutex> lock(globalMutex);
+        
+        std::vector<CUTF16String>::iterator ir;
+        std::vector<CUTF16String>::iterator ur;
+        std::vector<CUTF16String>::iterator dr;
+        
+        ir = AB::INSERT_RECORDS.begin();
+        ur = AB::UPDATE_RECORDS.begin();
+        dr = AB::DELETE_RECORDS.begin();
+        
+        __INSERT_RECORDS = *ir;
+        __UPDATE_RECORDS = *ur;
+        __DELETE_RECORDS = *dr;
+        
+        AB::INSERT_RECORDS.erase(ir);
+        AB::UPDATE_RECORDS.erase(ur);
+        AB::DELETE_RECORDS.erase(dr);
+    }
     
     method_id_t methodId = PA_GetMethodID((PA_Unichar *)AB::LISTENER_METHOD.getUTF16StringPtr());
     
@@ -352,10 +426,6 @@ void listenerLoopExecuteMethod()
         PA_SetStringVariable(&params[0], &INSERT_RECORDS);
         PA_SetStringVariable(&params[1], &UPDATE_RECORDS);
         PA_SetStringVariable(&params[2], &DELETE_RECORDS);
-        
-        AB::INSERT_RECORDS.erase(ir);
-        AB::UPDATE_RECORDS.erase(ur);
-        AB::DELETE_RECORDS.erase(dr);
         
         PA_ExecuteMethodByID(methodId, params, 3);
         
@@ -386,10 +456,6 @@ void listenerLoopExecuteMethod()
         PA_SetStringVariable(&params[1], &INSERT_RECORDS);
         PA_SetStringVariable(&params[2], &UPDATE_RECORDS);
         PA_SetStringVariable(&params[3], &DELETE_RECORDS);
-        
-        AB::INSERT_RECORDS.erase(ir);
-        AB::UPDATE_RECORDS.erase(ur);
-        AB::DELETE_RECORDS.erase(dr);
         
         /* execute method */
         PA_ExecuteCommandByID(1007, params, 4);
@@ -3049,6 +3115,8 @@ void AB_Set_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
     {
         if(1)
         {
+            std::lock_guard<std::mutex> lock(globalMutex2);
+            
             AB::LISTENER_METHOD.fromParamAtIndex(pParams, 1);
         }
         PA_RunInMainProcess((PA_RunInMainProcessProcPtr)listener_start, NULL);
