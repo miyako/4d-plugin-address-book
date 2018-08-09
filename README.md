@@ -30,14 +30,16 @@ except
 * ``AB FIND PEOPLE``
 * ``AB LIST GROUP PEOPLE``
 * ``AB Get parent groups``
-* ``AB Set notification method``
 * ``AB GET LIST``
 * ``AB Get groups in group``
 * ``AB Get people in group``
 * ``AB QUERY PEOPLE``
-* ``AB Get person image``
-* ``AB Set person image``
 * ``AB Get person properties``
 * ``AB Set person properties``  
+
+* ``AB Get person image``
+* ``AB Set person image``
+
+* ``AB Set notification method``
 
 [3.4](https://github.com/miyako/4d-plugin-address-book/releases/tag/3.4)
