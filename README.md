@@ -15,6 +15,8 @@ Access "contacts" via the [Address Book API](https://developer.apple.com/library
 
 ### Releases
 
+[4.3](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.3) more autoreleases
+
 [4.2](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.2) mutex for globals
 
 [4.1](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.1) queue callbacks
