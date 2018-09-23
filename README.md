@@ -15,6 +15,8 @@ Access "contacts" via the [Address Book API](https://developer.apple.com/library
 
 ### Releases
 
+[4.3](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.3) more autoreleases
+
 [4.2](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.2) mutex for globals
 
 [4.1](https://github.com/miyako/4d-plugin-address-book/releases/tag/4.1) queue callbacks
@@ -30,14 +32,14 @@ except
 * ``AB FIND PEOPLE``
 * ``AB LIST GROUP PEOPLE``
 * ``AB Get parent groups``
-* ``AB Set notification method``
 * ``AB GET LIST``
 * ``AB Get groups in group``
 * ``AB Get people in group``
 * ``AB QUERY PEOPLE``
-* ``AB Get person image``
-* ``AB Set person image``
 * ``AB Get person properties``
 * ``AB Set person properties``  
 
-[3.4](https://github.com/miyako/4d-plugin-address-book/releases/tag/3.4)
+* ``AB Get person image``
+* ``AB Set person image``
+
+* ``AB Set notification method``
