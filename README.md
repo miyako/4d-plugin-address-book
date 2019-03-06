@@ -43,3 +43,7 @@ except
 * ``AB Set person image``
 
 * ``AB Set notification method``
+
+TODO: support ``requestAccessForEntityType``
+
+c.f. https://github.com/MacPaw/PermissionsKit#contacts
