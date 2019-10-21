@@ -13,6 +13,7 @@
 #include <AddressBook/AddressBook.h>
 #include <AddressBook/ABAddressBookC.h>
 #include <mutex>
+#import <Contacts/Contacts.h>
 #endif
 
 #define AB_PEOPLE					0
@@ -95,4 +96,14 @@ void AB_FIND_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams);
 void AB_GET_GROUP_GROUPS(sLONG_PTR *pResult, PackagePtr pParams);
 void AB_GET_PERSON_GROUPS(sLONG_PTR *pResult, PackagePtr pParams);
 void AB_REMOVE_FROM_PRIVACY_LIST(sLONG_PTR *pResult, PackagePtr pParams);
-void AB_Is_access_denied(sLONG_PTR *pResult, PackagePtr pParams);
+void AB_Request_permisson(sLONG_PTR *pResult, PackagePtr pParams);
+
+typedef enum {
+    
+    request_permission_unknown = 0,
+    request_permission_authorized = 1,
+    request_permission_not_determined = 2,
+    request_permission_denied = 3,
+    request_permission_restricted = 4
+    
+}request_permission_t;

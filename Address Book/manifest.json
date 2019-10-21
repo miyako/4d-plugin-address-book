@@ -219,7 +219,7 @@
 		},
 		{
 			"theme": "Special",
-			"syntax": "AB Is access denied:L",
+			"syntax": "AB Request permisson:L",
 			"threadSafe": true
 		}
 	]

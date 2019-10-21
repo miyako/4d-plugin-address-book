@@ -12,6 +12,8 @@
 #include "4DPluginAPI.h"
 #include "4DPlugin.h"
 
+bool request_permission_granted = false;
+
 #define CALLBACK_IN_NEW_PROCESS 0
 #define CALLBACK_SLEEP_TIME 59
 
@@ -693,7 +695,7 @@ void CommandDispatcher (PA_long32 pProcNum, sLONG_PTR *pResult, PackagePtr pPara
 			break;
 
 		case 44 :
-			AB_Is_access_denied(pResult, pParams);
+			AB_Request_permisson(pResult, pParams);
 			break;
 
 	}
@@ -3494,11 +3496,103 @@ void AB_REMOVE_FROM_PRIVACY_LIST(sLONG_PTR *pResult, PackagePtr pParams)
     }
 }
 
-void AB_Is_access_denied(sLONG_PTR *pResult, PackagePtr pParams)
+request_permission_t requestPermission() {
+    
+    if (@available(macOS 10.11, *)) {
+        
+        switch ([CNContactStore
+                 authorizationStatusForEntityType:CNEntityTypeContacts])
+        {
+            case CNAuthorizationStatusNotDetermined:
+            {
+                CNContactStore *store = [CNContactStore new];
+                [store requestAccessToEntityType:CNEntityTypeContacts completion:^(BOOL granted, NSError * _Nullable error) {
+                    if (granted) {
+                        request_permission_granted = true;
+                        
+                    }
+                }];
+                return request_permission_not_determined;
+                break;
+            }
+                break;
+            case CNAuthorizationStatusRestricted:
+                request_permission_granted = false;
+                return request_permission_restricted;
+                break;
+            case CNAuthorizationStatusDenied:
+                request_permission_granted = false;
+                return request_permission_denied;
+                break;
+            case CNAuthorizationStatusAuthorized:
+                request_permission_granted = true;
+                return request_permission_authorized;
+                break;
+        }
+        
+    }
+    return request_permission_unknown;
+}
+
+void AB_Request_permisson(sLONG_PTR *pResult, PackagePtr pParams)
 {
 	C_LONGINT returnValue;
 
-	returnValue.setIntValue(![ABAddressBook sharedAddressBook]);
+#if VERSIONMAC
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    if(mainBundle) {
+        NSDictionary *infoDictionary = [mainBundle infoDictionary];
+        if(infoDictionary) {
+            
+            NSString *contactsUsageDescription = [infoDictionary objectForKey:@"NSContactsUsageDescription"];
+            
+            if(contactsUsageDescription) {
+                
+                SecTaskRef sec = SecTaskCreateFromSelf(kCFAllocatorMalloc);
+                CFErrorRef err = nil;
+                CFBooleanRef boolValue = (CFBooleanRef)SecTaskCopyValueForEntitlement(
+                                                                                      SecTaskCreateFromSelf(NULL), CFSTR("com.apple.security.personal-information.addressbook"), &err);
+                if(!err) {
+                    
+                    if(boolValue) {
+                        
+                        if(CFBooleanGetValue(boolValue)) {
+                            
+                            request_permission_t permission = requestPermission();
+
+                        }
+                        
+                        if(request_permission_granted) {
+                            returnValue.setIntValue(1);
+                        }
+                        
+                        CFRelease(boolValue);
+                    }else{
+                        returnValue.setIntValue(-1);
+                        NSLog(@"com.apple.security.personal-information.addressbook is set to false in app entitlement");
+                    }
+                    
+                }else{
+                    returnValue.setIntValue(-2);
+                    NSLog(@"com.apple.security.personal-information.addressbook is missing in app entitlement");
+                }
+                
+                CFRelease(sec);
+                
+            }else{
+                returnValue.setIntValue(-3);
+                NSLog(@"NSContactsUsageDescription is missing in app info.plist");
+            }
+        }else{
+            returnValue.setIntValue(-4);
+            NSLog(@"failed to locate [mainBundle infoDictionary]");
+        }
+    }else{
+        returnValue.setIntValue(-5);
+        NSLog(@"failed to locate [NSBundle mainBundle]");
+    }
+#endif
+
 	returnValue.setReturn(pResult);
 }
 
