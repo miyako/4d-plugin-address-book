@@ -8,6 +8,8 @@
 
 Access "contacts" via the [Address Book API](https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AddressBook/AddressBook.html).
 
+To use on v16 or v17, move manifest.json to contents.
+
 **Important Note**: ``AB Is access denied`` has been renamed as ``AB Request permisson``. You must call this once before you use other commands.
 
 You must codesign your app with the following entitlements:
