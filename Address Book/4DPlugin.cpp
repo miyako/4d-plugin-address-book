@@ -23,7 +23,7 @@ std::mutex globalMutex2;/* for LISTENER_METHOD */
 std::mutex globalMutex3;/* PROCESS_SHOULD_TERMINATE */
 std::mutex globalMutex4;/* PROCESS_SHOULD_RESUME */
 
-@interface Listener : NSObject
+@interface ABListener : NSObject
 {
 
 }
@@ -34,7 +34,7 @@ std::mutex globalMutex4;/* PROCESS_SHOULD_RESUME */
 
 namespace AB
 {
-    Listener *listener = nil;
+    ABListener *listener = nil;
     
     //constants
     process_name_t MONITOR_PROCESS_NAME = (PA_Unichar *)"$\0A\0D\0D\0R\0E\0S\0S\0_\0B\0O\0O\0K\0\0\0";
@@ -52,7 +52,7 @@ namespace AB
     bool PROCESS_SHOULD_RESUME = false;
 }
 
-@implementation Listener
+@implementation ABListener
 - (id)init
 {
 	if(!(self = [super init])) return self;
@@ -209,7 +209,7 @@ void listener_start()
 {
     if(!AB::listener)
     {
-        AB::listener = [[Listener alloc]init];
+        AB::listener = [[ABListener alloc]init];
     }
 }
 
@@ -3506,7 +3506,7 @@ request_permission_t requestPermission() {
             case CNAuthorizationStatusNotDetermined:
             {
                 CNContactStore *store = [CNContactStore new];
-                [store requestAccessToEntityType:CNEntityTypeContacts completion:^(BOOL granted, NSError * _Nullable error) {
+                [store requestAccessForEntityType:CNEntityTypeContacts completionHandler:^(BOOL granted, NSError * _Nullable error) {
                     if (granted) {
                         request_permission_granted = true;
                         

@@ -35,22 +35,22 @@
 		{
 			"theme": "People",
 			"syntax": "AB Set person properties(&T;&T;&Y;&Y):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "People",
 			"syntax": "AB Get person properties(&T;&T;&Y;&Y):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "People",
 			"syntax": "AB Set person image(&T;&P):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "People",
 			"syntax": "AB Get person image(&T;&P):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "People",
@@ -60,7 +60,7 @@
 		{
 			"theme": "People",
 			"syntax": "AB QUERY PEOPLE(&T;&T;&T;&T;&T;&Y)",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "People",
@@ -130,12 +130,12 @@
 		{
 			"theme": "Group",
 			"syntax": "AB Get people in group(&T;&Y):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Group",
 			"syntax": "AB Get groups in group(&T;&Y):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Type Cast",
@@ -160,7 +160,7 @@
 		{
 			"theme": "Address Book",
 			"syntax": "AB GET LIST(&L;&Y;&L;&T)",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Utilities",
@@ -180,7 +180,7 @@
 		{
 			"theme": "Notification",
 			"syntax": "AB Set notification method(&T):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Notification",
@@ -190,27 +190,27 @@
 		{
 			"theme": "Group II",
 			"syntax": "AB Get parent groups(&T;&Y):L",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Special",
 			"syntax": "AB LIST GROUP PEOPLE(&T;&Y;&Y;&Y;&Y;&Y;&Y;&Y;&Y)",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Special",
 			"syntax": "AB FIND PEOPLE(&Y;&Y;&Y;&Y;&Y;&L;&Y)",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Special",
 			"syntax": "AB GET GROUP GROUPS(&T;&Y)",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Special",
 			"syntax": "AB GET PERSON GROUPS(&T;&Y)",
-			"threadSafe": false
+			"threadSafe": true
 		},
 		{
 			"theme": "Special",
