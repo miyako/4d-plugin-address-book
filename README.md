@@ -22,4 +22,4 @@ The app must also have the following property list keys:
 
 * ``NSContactsUsageDescription``
 
-See [build-application](https://github.com/miyako/4d-utility-build-application)
+See [4d-utility-sign-app](https://github.com/miyako/4d-utility-sign-app) on how to enable the plugin in 4D.
