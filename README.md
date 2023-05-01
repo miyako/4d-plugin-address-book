@@ -3,8 +3,6 @@
 [![license](https://img.shields.io/github/license/miyako/4d-plugin-address-book)](LICENSE)
 ![downloads](https://img.shields.io/github/downloads/miyako/4d-plugin-address-book/total)
 
-**Note**: for v17 and earlier, move `manifest.json` to `Contents`
-
 See [4d-utility-sign-app](https://github.com/miyako/4d-utility-sign-app) on how to enable the plugin in 4D.
 
 4d-pugin-address-book
