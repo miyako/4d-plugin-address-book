@@ -25,7 +25,7 @@ std::mutex globalMutex4;/* PROCESS_SHOULD_RESUME */
 
 @interface ABListener : NSObject
 {
-
+    
 }
 - (id)init;
 - (void)dealloc;
@@ -34,36 +34,36 @@ std::mutex globalMutex4;/* PROCESS_SHOULD_RESUME */
 
 namespace AB
 {
-    ABListener *listener = nil;
-    
-    //constants
-    process_name_t MONITOR_PROCESS_NAME = (PA_Unichar *)"$\0A\0D\0D\0R\0E\0S\0S\0_\0B\0O\0O\0K\0\0\0";
-    process_stack_size_t MONITOR_PROCESS_STACK_SIZE = 0;
-    
-    //context management
-    std::vector<CUTF16String> INSERT_RECORDS;
-    std::vector<CUTF16String> UPDATE_RECORDS;
-    std::vector<CUTF16String> DELETE_RECORDS;
-    
-    //callback management
-    C_TEXT LISTENER_METHOD;
-    process_number_t METHOD_PROCESS_ID = 0;
-    bool PROCESS_SHOULD_TERMINATE = false;
-    bool PROCESS_SHOULD_RESUME = false;
+ABListener *listener = nil;
+
+//constants
+process_name_t MONITOR_PROCESS_NAME = (PA_Unichar *)"$\0A\0D\0D\0R\0E\0S\0S\0_\0B\0O\0O\0K\0\0\0";
+process_stack_size_t MONITOR_PROCESS_STACK_SIZE = 0;
+
+//context management
+std::vector<CUTF16String> INSERT_RECORDS;
+std::vector<CUTF16String> UPDATE_RECORDS;
+std::vector<CUTF16String> DELETE_RECORDS;
+
+//callback management
+C_TEXT LISTENER_METHOD;
+process_number_t METHOD_PROCESS_ID = 0;
+bool PROCESS_SHOULD_TERMINATE = false;
+bool PROCESS_SHOULD_RESUME = false;
 }
 
 @implementation ABListener
 - (id)init
 {
-	if(!(self = [super init])) return self;
-	
+    if(!(self = [super init])) return self;
+    
     [[NSNotificationCenter defaultCenter]
      addObserver:self
      selector:@selector(addressbookChanged:)
-     name:kABDatabaseChangedExternallyNotification 
+     name:kABDatabaseChangedExternallyNotification
      object:[ABAddressBook sharedAddressBook]];
     
-	return self;
+    return self;
 }
 - (void)dealloc
 {
@@ -72,18 +72,18 @@ namespace AB
 }
 - (void)addressbookChanged:(NSNotification *)notification
 {
-	NSArray *insertRecords = [[notification userInfo]objectForKey:kABInsertedRecords];
-	NSArray *updateRecords = [[notification userInfo]objectForKey:kABUpdatedRecords];
-	NSArray *deleteRecords = [[notification userInfo]objectForKey:kABDeletedRecords];
+    NSArray *insertRecords = [[notification userInfo]objectForKey:kABInsertedRecords];
+    NSArray *updateRecords = [[notification userInfo]objectForKey:kABUpdatedRecords];
+    NSArray *deleteRecords = [[notification userInfo]objectForKey:kABDeletedRecords];
     
-	unsigned int i;
-	
-	NSMutableString *_insertRecords = [[NSMutableString alloc]init];
-	NSMutableString *_updateRecords = [[NSMutableString alloc]init];
-	NSMutableString *_deleteRecords = [[NSMutableString alloc]init];
-	
-    @autoreleasepool
-    {
+    unsigned int i;
+    
+    NSMutableString *_insertRecords = [[NSMutableString alloc]init];
+    NSMutableString *_updateRecords = [[NSMutableString alloc]init];
+    NSMutableString *_deleteRecords = [[NSMutableString alloc]init];
+    
+//    @autoreleasepool
+//    {
         if(insertRecords){
             for(i = 0; i < [insertRecords count]; i ++){
                 if(!i){
@@ -159,7 +159,7 @@ namespace AB
             
             AB::PROCESS_SHOULD_RESUME = true;
         }
-    }
+//    }
 }
 @end
 
@@ -177,7 +177,7 @@ bool IsProcessOnExit()
 
 void OnStartup()
 {
-
+    
 }
 
 void OnCloseProcess()
@@ -199,7 +199,7 @@ void generateUuid(C_TEXT &returnValue)
     returnValue.setUTF16String([uuid_str stringByReplacingOccurrencesOfString:@"-" withString:@""]);
 #endif    
 #else
-
+    
 #endif
 }
 
@@ -269,7 +269,7 @@ void listenerLoop()
                                   (PA_Unichar *)processName.getUTF16StringPtr());
                 }else
                 {
-                     listenerLoopExecuteMethod();
+                    listenerLoopExecuteMethod();
                 }
                 
                 if(PROCESS_SHOULD_TERMINATE)
@@ -320,7 +320,7 @@ void listenerLoop()
         
         AB::LISTENER_METHOD.setUTF16String((PA_Unichar *)"\0\0", 0);
     }
-
+    
     if(1)
     {
         std::lock_guard<std::mutex> lock(globalMutex1);
@@ -361,7 +361,7 @@ void listenerLoopFinish()
         if(1)
         {
             std::lock_guard<std::mutex> lock(globalMutex4);
-
+            
             AB::PROCESS_SHOULD_RESUME = true;
         }
     }
@@ -375,14 +375,14 @@ void listenerLoopExecute()
         
         AB::PROCESS_SHOULD_TERMINATE = false;
     }
-
+    
     if(1)
     {
         std::lock_guard<std::mutex> lock(globalMutex4);
         
         AB::PROCESS_SHOULD_RESUME = true;
     }
-
+    
 }
 
 void listenerLoopExecuteMethod()
@@ -439,7 +439,7 @@ void listenerLoopExecuteMethod()
         PA_ClearVariable(&params[0]);
         PA_ClearVariable(&params[1]);
         PA_ClearVariable(&params[2]);
-
+        
     }else
     {
         PA_Variable    params[4];
@@ -478,24 +478,24 @@ void listenerLoopExecuteMethod()
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params)
 {
-	try
-	{
-		PA_long32 pProcNum = selector;
-		sLONG_PTR *pResult = (sLONG_PTR *)params->fResult;
-		PackagePtr pParams = (PackagePtr)params->fParameters;
-
-		CommandDispatcher(pProcNum, pResult, pParams); 
-	}
-	catch(...)
-	{
-
-	}
+    try
+    {
+        PA_long32 pProcNum = selector;
+        sLONG_PTR *pResult = (sLONG_PTR *)params->fResult;
+        PackagePtr pParams = (PackagePtr)params->fParameters;
+        
+        CommandDispatcher(pProcNum, pResult, pParams);
+    }
+    catch(...)
+    {
+        
+    }
 }
 
 void CommandDispatcher (PA_long32 pProcNum, sLONG_PTR *pResult, PackagePtr pParams)
 {
-	switch(pProcNum)
-	{
+    switch(pProcNum)
+    {
         case kInitPlugin :
         case kServerInitPlugin :
             OnStartup();
@@ -504,211 +504,211 @@ void CommandDispatcher (PA_long32 pProcNum, sLONG_PTR *pResult, PackagePtr pPara
         case kCloseProcess :
             OnCloseProcess();
             break;
-// --- Application
-
-		case 1 :
-			AB_TERMINATE(pResult, pParams);
-			break;
-
-		case 2 :
-			AB_LAUNCH(pResult, pParams);
-			break;
-
-// --- People
-
-		case 3 :
-			AB_Create_person(pResult, pParams);
-			break;
-
-		case 4 :
-			AB_Set_person_property(pResult, pParams);
-			break;
-
-		case 5 :
-			AB_Get_person_property(pResult, pParams);
-			break;
-
-		case 6 :
-			AB_Remove_person(pResult, pParams);
-			break;
-
-		case 7 :
-			AB_Set_person_properties(pResult, pParams);
-			break;
-
-		case 8 :
-			AB_Get_person_properties(pResult, pParams);
-			break;
-
-		case 9 :
-			AB_Set_person_image(pResult, pParams);
-			break;
-
-		case 10 :
-			AB_Get_person_image(pResult, pParams);
-			break;
-
-		case 11 :
-			AB_Person_get_vcard(pResult, pParams);
-			break;
-
-		case 12 :
-			AB_QUERY_PEOPLE(pResult, pParams);
-			break;
-
-		case 13 :
-			AB_Create_person_with_vcard(pResult, pParams);
-			break;
-
-		case 14 :
-			AB_Set_person_flags(pResult, pParams);
-			break;
-
-		case 15 :
-			AB_Get_person_flags(pResult, pParams);
-			break;
-
-		case 16 :
-			AB_Get_me(pResult, pParams);
-			break;
-
-		case 17 :
-			AB_Set_me(pResult, pParams);
-			break;
-
-// --- Group
-
-		case 18 :
-			AB_Create_group(pResult, pParams);
-			break;
-
-		case 19 :
-			AB_Set_group_name(pResult, pParams);
-			break;
-
-		case 20 :
-			AB_Get_group_name(pResult, pParams);
-			break;
-
-		case 21 :
-			AB_Remove_group(pResult, pParams);
-			break;
-
-		case 22 :
-			AB_Remove_person_from_group(pResult, pParams);
-			break;
-
-		case 23 :
-			AB_Add_group_to_group(pResult, pParams);
-			break;
-
-		case 24 :
-			AB_Add_person_to_group(pResult, pParams);
-			break;
-
-		case 25 :
-			AB_Remove_group_from_group(pResult, pParams);
-			break;
-
-		case 26 :
-			AB_Get_people_in_group(pResult, pParams);
-			break;
-
-		case 27 :
-			AB_Get_groups_in_group(pResult, pParams);
-			break;
-
-// --- Type Cast
-
-		case 28 :
-			AB_Make_date(pResult, pParams);
-			break;
-
-		case 29 :
-			AB_GET_DATE(pResult, pParams);
-			break;
-
-		case 30 :
-			AB_Make_address(pResult, pParams);
-			break;
-
-		case 31 :
-			AB_GET_ADDRESS(pResult, pParams);
-			break;
-
-// --- Address Book
-
-		case 32 :
-			AB_GET_LIST(pResult, pParams);
-			break;
-
-// --- Utilities
-
-		case 33 :
-			AB_Get_localized_string(pResult, pParams);
-			break;
-
-		case 34 :
-			AB_Get_default_country_code(pResult, pParams);
-			break;
-
-		case 35 :
-			AB_Get_default_name_ordering(pResult, pParams);
-			break;
-
-// --- Notification
-
-		case 36 :
-			AB_Set_notification_method(pResult, pParams);
-			break;
-
-		case 37 :
-			AB_Get_notification_method(pResult, pParams);
-			break;
-
-// --- Group II
-
-		case 38 :
-			AB_Get_parent_groups(pResult, pParams);
-			break;
-
-// --- Special
-
-		case 39 :
-			AB_LIST_GROUP_PEOPLE(pResult, pParams);
-			break;
-
-		case 40 :
-			AB_FIND_PEOPLE(pResult, pParams);
-			break;
-
-		case 41 :
-			AB_GET_GROUP_GROUPS(pResult, pParams);
-			break;
-
-		case 42 :
-			AB_GET_PERSON_GROUPS(pResult, pParams);
-			break;
-
-		case 43 :
-			AB_REMOVE_FROM_PRIVACY_LIST(pResult, pParams);
-			break;
-
-		case 44 :
-			AB_Request_permisson(pResult, pParams);
-			break;
-
-	}
+            // --- Application
+            
+        case 1 :
+            AB_TERMINATE(pResult, pParams);
+            break;
+            
+        case 2 :
+            AB_LAUNCH(pResult, pParams);
+            break;
+            
+            // --- People
+            
+        case 3 :
+            AB_Create_person(pResult, pParams);
+            break;
+            
+        case 4 :
+            AB_Set_person_property(pResult, pParams);
+            break;
+            
+        case 5 :
+            AB_Get_person_property(pResult, pParams);
+            break;
+            
+        case 6 :
+            AB_Remove_person(pResult, pParams);
+            break;
+            
+        case 7 :
+            AB_Set_person_properties(pResult, pParams);
+            break;
+            
+        case 8 :
+            AB_Get_person_properties(pResult, pParams);
+            break;
+            
+        case 9 :
+            AB_Set_person_image(pResult, pParams);
+            break;
+            
+        case 10 :
+            AB_Get_person_image(pResult, pParams);
+            break;
+            
+        case 11 :
+            AB_Person_get_vcard(pResult, pParams);
+            break;
+            
+        case 12 :
+            AB_QUERY_PEOPLE(pResult, pParams);
+            break;
+            
+        case 13 :
+            AB_Create_person_with_vcard(pResult, pParams);
+            break;
+            
+        case 14 :
+            AB_Set_person_flags(pResult, pParams);
+            break;
+            
+        case 15 :
+            AB_Get_person_flags(pResult, pParams);
+            break;
+            
+        case 16 :
+            AB_Get_me(pResult, pParams);
+            break;
+            
+        case 17 :
+            AB_Set_me(pResult, pParams);
+            break;
+            
+            // --- Group
+            
+        case 18 :
+            AB_Create_group(pResult, pParams);
+            break;
+            
+        case 19 :
+            AB_Set_group_name(pResult, pParams);
+            break;
+            
+        case 20 :
+            AB_Get_group_name(pResult, pParams);
+            break;
+            
+        case 21 :
+            AB_Remove_group(pResult, pParams);
+            break;
+            
+        case 22 :
+            AB_Remove_person_from_group(pResult, pParams);
+            break;
+            
+        case 23 :
+            AB_Add_group_to_group(pResult, pParams);
+            break;
+            
+        case 24 :
+            AB_Add_person_to_group(pResult, pParams);
+            break;
+            
+        case 25 :
+            AB_Remove_group_from_group(pResult, pParams);
+            break;
+            
+        case 26 :
+            AB_Get_people_in_group(pResult, pParams);
+            break;
+            
+        case 27 :
+            AB_Get_groups_in_group(pResult, pParams);
+            break;
+            
+            // --- Type Cast
+            
+        case 28 :
+            AB_Make_date(pResult, pParams);
+            break;
+            
+        case 29 :
+            AB_GET_DATE(pResult, pParams);
+            break;
+            
+        case 30 :
+            AB_Make_address(pResult, pParams);
+            break;
+            
+        case 31 :
+            AB_GET_ADDRESS(pResult, pParams);
+            break;
+            
+            // --- Address Book
+            
+        case 32 :
+            AB_GET_LIST(pResult, pParams);
+            break;
+            
+            // --- Utilities
+            
+        case 33 :
+            AB_Get_localized_string(pResult, pParams);
+            break;
+            
+        case 34 :
+            AB_Get_default_country_code(pResult, pParams);
+            break;
+            
+        case 35 :
+            AB_Get_default_name_ordering(pResult, pParams);
+            break;
+            
+            // --- Notification
+            
+        case 36 :
+            AB_Set_notification_method(pResult, pParams);
+            break;
+            
+        case 37 :
+            AB_Get_notification_method(pResult, pParams);
+            break;
+            
+            // --- Group II
+            
+        case 38 :
+            AB_Get_parent_groups(pResult, pParams);
+            break;
+            
+            // --- Special
+            
+        case 39 :
+            AB_LIST_GROUP_PEOPLE(pResult, pParams);
+            break;
+            
+        case 40 :
+            AB_FIND_PEOPLE(pResult, pParams);
+            break;
+            
+        case 41 :
+            AB_GET_GROUP_GROUPS(pResult, pParams);
+            break;
+            
+        case 42 :
+            AB_GET_PERSON_GROUPS(pResult, pParams);
+            break;
+            
+        case 43 :
+            AB_REMOVE_FROM_PRIVACY_LIST(pResult, pParams);
+            break;
+            
+        case 44 :
+            AB_Request_permisson(pResult, pParams);
+            break;
+            
+    }
 }
 
 #pragma mark -
 
 ABPerson *_GetPersonForUniqueId(NSString *uniqueId)
 {
-	ABPerson *person = NULL;
-	
-	if(uniqueId)
-	{
+    ABPerson *person = NULL;
+    
+    if(uniqueId)
+    {
         @autoreleasepool
         {
             //this method raised exception if the uuid is malformed
@@ -729,17 +729,17 @@ ABPerson *_GetPersonForUniqueId(NSString *uniqueId)
                 NSLog(@"The person ID is malformed: %@", uniqueId);
             }
         }
-	}
+    }
     
-	return person;
+    return person;
 }
 
 ABGroup *_GetGroupForUniqueId(NSString *uniqueId)
 {
-	ABGroup *group = NULL;
-	
-	if(uniqueId)
-	{
+    ABGroup *group = NULL;
+    
+    if(uniqueId)
+    {
         @autoreleasepool
         {
             //this method raised exception if the uuid is malformed
@@ -760,95 +760,101 @@ ABGroup *_GetGroupForUniqueId(NSString *uniqueId)
                 NSLog(@"The group ID is malformed: %@", uniqueId);
             }
         }
-	}
-	return group;
+    }
+    return group;
 }
 
 ABSearchComparison _SearchComparisonForName(NSString *name)
 {
-	ABSearchComparison comparison = kABEqual;
-	
+    ABSearchComparison comparison = kABEqual;
+    
+    NSUInteger pid = NSNotFound;
+    
     @autoreleasepool
     {
         NSArray *searchComparisons = @[@"Equal", @"NotEqual", @"DoesNotContainSubString", @"PrefixMatch", @"ContainsSubString", @"SuffixMatch"];
         
-        NSUInteger pid = [searchComparisons indexOfObject:name];
-        
-        switch (pid)
-        {
-            case 0://Equal
-                comparison = kABEqualCaseInsensitive;
-                break;
-            case 1://NotEqual
-                comparison = kABNotEqualCaseInsensitive;
-                break;
-            case 2://DoesNotContainSubString
-                comparison = kABDoesNotContainSubStringCaseInsensitive;
-                break;
-            case 3://PrefixMatch
-                comparison = kABPrefixMatchCaseInsensitive;
-                break;
-            case 4://ContainsSubString
-                comparison = kABContainsSubStringCaseInsensitive;
-                break;
-            case 5://SuffixMatch
-                comparison = kABSuffixMatchCaseInsensitive;
-                break;
-        }
+        pid = [searchComparisons indexOfObject:name];
     }
     
-	return comparison;
+    switch (pid)
+    {
+        case 0://Equal
+            comparison = kABEqualCaseInsensitive;
+            break;
+        case 1://NotEqual
+            comparison = kABNotEqualCaseInsensitive;
+            break;
+        case 2://DoesNotContainSubString
+            comparison = kABDoesNotContainSubStringCaseInsensitive;
+            break;
+        case 3://PrefixMatch
+            comparison = kABPrefixMatchCaseInsensitive;
+            break;
+        case 4://ContainsSubString
+            comparison = kABContainsSubStringCaseInsensitive;
+            break;
+        case 5://SuffixMatch
+            comparison = kABSuffixMatchCaseInsensitive;
+            break;
+    }
+    
+    return comparison;
 }
 
 NSString *_AddressKeyForName(NSString *name)
 {
-	NSString *key = nil;//this value can be nil
-	
+    NSString *key = nil;//this value can be nil
+    
+    NSUInteger pid = NSNotFound;
+    
     @autoreleasepool
     {
         NSArray *addressKeys = @[@"Street", @"City", @"State", @"ZIP", @"Country", @"CountryCode"];
         
-        NSUInteger pid = [addressKeys indexOfObject:name];
-        
-        switch (pid)
-        {
-            case 0://Street
-                key = kABAddressStreetKey;
-                break;
-            case 1://City
-                key = kABAddressCityKey;
-                break;
-            case 2://State
-                key = kABAddressStateKey;
-                break;
-            case 3://ZIP
-                key = kABAddressZIPKey;
-                break;
-            case 4://Country
-                key = kABAddressCountryKey;
-                break;
-            case 5://CountryCode
-                key = kABAddressCountryCodeKey;
-                break;
-        }
+        pid = [addressKeys indexOfObject:name];
     }
     
-	return key;
+    switch (pid)
+    {
+        case 0://Street
+            key = kABAddressStreetKey;
+            break;
+        case 1://City
+            key = kABAddressCityKey;
+            break;
+        case 2://State
+            key = kABAddressStateKey;
+            break;
+        case 3://ZIP
+            key = kABAddressZIPKey;
+            break;
+        case 4://Country
+            key = kABAddressCountryKey;
+            break;
+        case 5://CountryCode
+            key = kABAddressCountryCodeKey;
+            break;
+    }
+    
+    return key;
 }
 
 NSString *_LabelForName(NSString *name)
 {
-	NSString *label = nil;//this value can be nil
-	
-	if(![name isEqualToString:@""]) label = name;
-	
-	return label;			
+    NSString *label = nil;//this value can be nil
+    
+    if(![name isEqualToString:@""]) label = name;
+    
+    return label;
 }
 
 NSString *_PropertyForName(NSString *name)
 {
-	NSString *property = @"";//this value cannot be null
-	
+    NSString *property = @"";//this value cannot be null
+    
+    NSUInteger pid = NSNotFound;
+    
     @autoreleasepool
     {
         NSArray *PropertyNames = @[@"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname", @"MaidenName",
@@ -857,114 +863,95 @@ NSString *_PropertyForName(NSString *name)
                                    @"Address", @"OtherDates", @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant",
                                    @"MSNInstant", @"YahooInstant", @"ICQInstant", @"ModificationDate", @"CreationDate", @"UID"];
         
-        NSUInteger pid = [PropertyNames indexOfObject:name];
-        
-        switch (pid)
-        {
-            case 0://FirstName
-                property = kABFirstNameProperty;
-                break;
-            case 1://LastName
-                property = kABLastNameProperty;
-                break;
-            case 2://FirstNamePhonetic
-                property = kABFirstNamePhoneticProperty;
-                break;
-            case 3://LastNamePhonetic
-                property = kABLastNamePhoneticProperty;
-                break;
-            case 4://Nickname
-                property = kABNicknameProperty;
-                break;
-            case 5://MaidenName
-                property = kABMaidenNameProperty;
-                break;
-                
-            case 6://Birthday
-                property = kABBirthdayProperty;
-                break;
-            case 7://Organization
-                property = kABOrganizationProperty;
-                break;
-            case 8://JobTitle
-                property = kABJobTitleProperty;
-                break;
-            case 9://Note
-                property = kABNoteProperty;
-                break;
-            case 10://Department
-                property = kABDepartmentProperty;
-                break;
-            case 11://MiddleName
-                property = kABMiddleNameProperty;
-                break;
-                
-            case 12://MiddleNamePhonetic
-                property = kABMiddleNamePhoneticProperty;
-                break;
-            case 13://Title
-                property = kABTitleProperty;
-                break;
-            case 14://Suffix
-                property = kABSuffixProperty;
-                break;
-            case 15://URLs
-                property = kABURLsProperty;
-                break;
-            case 16://CalendarURI
-                property = kABCalendarURIsProperty;
-                break;
-            case 17://Email
-                property = kABEmailProperty;
-                break;
-                
-            case 18://Address
-                property = kABAddressProperty;
-                break;
-            case 19://OtherDates
-                property = kABOtherDatesProperty;
-                break;
-            case 20://RelatedNames
-                property = kABRelatedNamesProperty;
-                break;
-            case 21://Phone
-                property = kABPhoneProperty;
-                break;
-                /*        case 22://AIMInstant
-                 property = kABAIMInstantProperty;
-                 break;
-                 case 23://JabberInstant
-                 property = kABJabberInstantProperty;
-                 break;
-                 
-                 case 24://MSNInstant
-                 property = kABMSNInstantProperty;
-                 break;
-                 case 25://YahooInstant
-                 property = kABYahooInstantProperty;
-                 break;
-                 case 26://ICQInstant
-                 property = kABICQInstantProperty;
-                 break;
-                 */
-            case 27://ModificationDate
-                property = kABModificationDateProperty;
-                break;
-            case 28://CreationDate
-                property = kABCreationDateProperty;
-                break;
-            case 29://UID
-                property = kABUIDProperty;
-                break;
-        }
+        pid = [PropertyNames indexOfObject:name];
+    }
+    switch (pid)
+    {
+        case 0://FirstName
+            property = kABFirstNameProperty;
+            break;
+        case 1://LastName
+            property = kABLastNameProperty;
+            break;
+        case 2://FirstNamePhonetic
+            property = kABFirstNamePhoneticProperty;
+            break;
+        case 3://LastNamePhonetic
+            property = kABLastNamePhoneticProperty;
+            break;
+        case 4://Nickname
+            property = kABNicknameProperty;
+            break;
+        case 5://MaidenName
+            property = kABMaidenNameProperty;
+            break;
+        case 6://Birthday
+            property = kABBirthdayProperty;
+            break;
+        case 7://Organization
+            property = kABOrganizationProperty;
+            break;
+        case 8://JobTitle
+            property = kABJobTitleProperty;
+            break;
+        case 9://Note
+            property = kABNoteProperty;
+            break;
+        case 10://Department
+            property = kABDepartmentProperty;
+            break;
+        case 11://MiddleName
+            property = kABMiddleNameProperty;
+            break;
+        case 12://MiddleNamePhonetic
+            property = kABMiddleNamePhoneticProperty;
+            break;
+        case 13://Title
+            property = kABTitleProperty;
+            break;
+        case 14://Suffix
+            property = kABSuffixProperty;
+            break;
+        case 15://URLs
+            property = kABURLsProperty;
+            break;
+        case 16://CalendarURI
+            property = kABCalendarURIsProperty;
+            break;
+        case 17://Email
+            property = kABEmailProperty;
+            break;
+        case 18://Address
+            property = kABAddressProperty;
+            break;
+        case 19://OtherDates
+            property = kABOtherDatesProperty;
+            break;
+        case 20://RelatedNames
+            property = kABRelatedNamesProperty;
+            break;
+        case 21://Phone
+            property = kABPhoneProperty;
+            break;
+        case 27://ModificationDate
+            property = kABModificationDateProperty;
+            break;
+        case 28://CreationDate
+            property = kABCreationDateProperty;
+            break;
+        case 29://UID
+            property = kABUIDProperty;
+            break;
     }
     
-	return property;			
+    return property;
 }
 
 id _ValueForProperty(NSString *string, NSString *property)
 {
-	id value = string;
+    id value = string;
+    
+    NSUInteger pid = NSNotFound;
     
     @autoreleasepool
     {
@@ -974,89 +961,89 @@ id _ValueForProperty(NSString *string, NSString *property)
                                    @"Address", @"OtherDates", @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant",
                                    @"MSNInstant", @"YahooInstant", @"ICQInstant", @"ModificationDate", @"CreationDate", @"UID"];
         
-        NSUInteger pid = [PropertyNames indexOfObject:property];
-        
-        switch (pid)
-        {
-            case 6://Birthday
-                value = [NSDate dateWithString:string];//this value can be nil
-                break;
-            case 27://ModificationDate
-                value = [NSDate dateWithString:string];//this value can be nil
-                break;
-            case 28://CreationDate
-                value = [NSDate dateWithString:string];//this value can be nil
-                break;
-        }
+        pid = [PropertyNames indexOfObject:property];
     }
-	
-	return value;			
+        
+    switch (pid)
+    {
+        case 6://Birthday
+            value = [NSDate dateWithString:string];//this value can be nil
+            break;
+        case 27://ModificationDate
+            value = [NSDate dateWithString:string];//this value can be nil
+            break;
+        case 28://CreationDate
+            value = [NSDate dateWithString:string];//this value can be nil
+            break;
+    }
+    
+    return value;
 }
 
 void _StringToDateTimeOffset(NSString *dateString, PA_Date *date, int *time, int *offset)
 {		
-	if(dateString)
-	{
-		NSDate *nsd = [NSDate dateWithString:dateString];
-		NSString *description = [nsd description];
-		
-		if([description length] == 25)
-		{
-			date->fYear = [[description substringWithRange:NSMakeRange(0,4)]integerValue];
-			date->fMonth = [[description substringWithRange:NSMakeRange(5,2)]integerValue];
-			date->fDay = [[description substringWithRange:NSMakeRange(8,2)]integerValue];		
-			int hour = [[description substringWithRange:NSMakeRange(11,2)]integerValue]; 		
-			int minute = [[description substringWithRange:NSMakeRange(14,2)]integerValue]; 
-			int second = [[description substringWithRange:NSMakeRange(17,2)]integerValue]; 		
-			*time = second + (minute * 60) + (hour * 3600);	
-			NSTimeZone *zone = [NSTimeZone timeZoneWithName:[@"GMT" stringByAppendingString:[dateString substringWithRange:NSMakeRange(20,5)]]];
-			if(zone) *offset = [zone secondsFromGMTForDate:nsd];
-		}
-	}	
+    if(dateString)
+    {
+        NSDate *nsd = [NSDate dateWithString:dateString];
+        NSString *description = [nsd description];
+        
+        if([description length] == 25)
+        {
+            date->fYear = [[description substringWithRange:NSMakeRange(0,4)]integerValue];
+            date->fMonth = [[description substringWithRange:NSMakeRange(5,2)]integerValue];
+            date->fDay = [[description substringWithRange:NSMakeRange(8,2)]integerValue];
+            int hour = [[description substringWithRange:NSMakeRange(11,2)]integerValue];
+            int minute = [[description substringWithRange:NSMakeRange(14,2)]integerValue];
+            int second = [[description substringWithRange:NSMakeRange(17,2)]integerValue];
+            *time = second + (minute * 60) + (hour * 3600);
+            NSTimeZone *zone = [NSTimeZone timeZoneWithName:[@"GMT" stringByAppendingString:[dateString substringWithRange:NSMakeRange(20,5)]]];
+            if(zone) *offset = [zone secondsFromGMTForDate:nsd];
+        }
+    }
 }
 
 NSString *_DateTimeZoneToString(PA_Date *date, int time, NSString *name)
 {
-	NSString *description = NULL;
-	
-	if(name)
-	{
-		NSTimeZone *zone = [NSTimeZone timeZoneWithName:name];
-		if(!zone) zone = [NSTimeZone localTimeZone];
-		
-		CFGregorianDate gregDate;
-		gregDate.year = date->fYear;
-		gregDate.month = date->fMonth;
-		gregDate.day = date->fDay;
-		gregDate.hour = 0;
-		gregDate.minute = 0;
-		gregDate.second = 0;
-		
-		CFGregorianUnits offset;
-		offset.years = 0;
-		offset.months = 0;
-		offset.days = 0;	
-		offset.minutes = 0;
-		offset.hours = 0;
-		offset.seconds = time;
-		
-		if( CFGregorianDateIsValid( gregDate, kCFGregorianUnitsYears+kCFGregorianUnitsMonths+kCFGregorianUnitsDays))
-		{
-			CFAbsoluteTime at = CFGregorianDateGetAbsoluteTime(gregDate, (CFTimeZoneRef)zone);
-			CFAbsoluteTime seconds = CFAbsoluteTimeAddGregorianUnits(at, (CFTimeZoneRef)zone, offset);		
-			NSDate *nsd = (NSDate *)CFDateCreate(kCFAllocatorDefault, seconds);
-			description = [[NSString alloc]initWithString:[nsd description]];		
-			[nsd release];
-		}
-		
-	}
-	
-	if(description) 
-	{
-		return description;
-	}else{
-		return @"";	
-	}
+    NSString *description = NULL;
+    
+    if(name)
+    {
+        NSTimeZone *zone = [NSTimeZone timeZoneWithName:name];
+        if(!zone) zone = [NSTimeZone localTimeZone];
+        
+        CFGregorianDate gregDate;
+        gregDate.year = date->fYear;
+        gregDate.month = date->fMonth;
+        gregDate.day = date->fDay;
+        gregDate.hour = 0;
+        gregDate.minute = 0;
+        gregDate.second = 0;
+        
+        CFGregorianUnits offset;
+        offset.years = 0;
+        offset.months = 0;
+        offset.days = 0;
+        offset.minutes = 0;
+        offset.hours = 0;
+        offset.seconds = time;
+        
+        if( CFGregorianDateIsValid( gregDate, kCFGregorianUnitsYears+kCFGregorianUnitsMonths+kCFGregorianUnitsDays))
+        {
+            CFAbsoluteTime at = CFGregorianDateGetAbsoluteTime(gregDate, (CFTimeZoneRef)zone);
+            CFAbsoluteTime seconds = CFAbsoluteTimeAddGregorianUnits(at, (CFTimeZoneRef)zone, offset);
+            NSDate *nsd = (NSDate *)CFDateCreate(kCFAllocatorDefault, seconds);
+            description = [[NSString alloc]initWithString:[nsd description]];
+            [nsd release];
+        }
+        
+    }
+    
+    if(description)
+    {
+        return description;
+    }else{
+        return @"";
+    }
     
 }
 
@@ -1067,7 +1054,7 @@ NSString *_DateTimeZoneToString(PA_Date *date, int time, NSString *name)
 
 void AB_TERMINATE(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	NSArray *runningApplications = [NSRunningApplication runningApplicationsWithBundleIdentifier:@"com.apple.AddressBook"];
+    NSArray *runningApplications = [NSRunningApplication runningApplicationsWithBundleIdentifier:@"com.apple.AddressBook"];
     if([runningApplications count])
     {
         [(NSRunningApplication *)[runningApplications objectAtIndex:0]terminate];
@@ -1076,31 +1063,31 @@ void AB_TERMINATE(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_LAUNCH(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	[[NSWorkspace sharedWorkspace]launchApplication:@"Address Book"];
+    [[NSWorkspace sharedWorkspace]launchApplication:@"Address Book"];
 }
 
 // ------------------------------------ People ------------------------------------
 
 void AB_Create_person(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT returnValue;
+    C_TEXT returnValue;
     
-	NSError *error = nil;
-	
-	ABPerson * person = [[ABPerson alloc]init];
-	
-	[[ABAddressBook sharedAddressBook]addRecord:person];
-	
-	if(![[ABAddressBook sharedAddressBook]saveAndReturnError:&error])
-	{
-		NSLog(@"can't create person: %@", [error localizedDescription]);
-	}else{
-		returnValue.setUTF16String([person uniqueId]);
-	}
-	
-	returnValue.setReturn(pResult);
-	
-	[person release];
+    NSError *error = nil;
+    
+    ABPerson * person = [[ABPerson alloc]init];
+    
+    [[ABAddressBook sharedAddressBook]addRecord:person];
+    
+    if(![[ABAddressBook sharedAddressBook]saveAndReturnError:&error])
+    {
+        NSLog(@"can't create person: %@", [error localizedDescription]);
+    }else{
+        returnValue.setUTF16String([person uniqueId]);
+    }
+    
+    returnValue.setReturn(pResult);
+    
+    [person release];
 }
 
 void AB_Set_person_property(sLONG_PTR *pResult, PackagePtr pParams)
@@ -1125,92 +1112,88 @@ void AB_Set_person_property(sLONG_PTR *pResult, PackagePtr pParams)
     
     if(person)
     {
+        NSUInteger pid = NSNotFound;
+        
         @autoreleasepool
         {
             NSArray *personProperties = @[
-                                          @"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname" ,
-                                          @"MaidenName", @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department",
-                                          @"MiddleName", @"MiddleNamePhonetic", @"Title", @"Suffix"];
+                @"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname" ,
+                @"MaidenName", @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department",
+                @"MiddleName", @"MiddleNamePhonetic", @"Title", @"Suffix"];
             
-            NSUInteger pid = [personProperties indexOfObject:property];
-            
-            switch (pid)
-            {
-                case 2://FirstNamePhonetic
-                case 3://LastNamePhonetic
-                case 12://MiddleNamePhonetic
-                if(![value length])
-                value = nil;
+            pid = [personProperties indexOfObject:property];
+        }
+        
+        NSString *key = nil;
+        
+        switch (pid)
+        {
+            case 0:
+                key = kABFirstNameProperty;
                 break;
-            }
-            
-            switch (pid)
-            {
-                case 0://FirstName
-                if([person setValue:value forProperty:kABFirstNameProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 1:
+                key = kABLastNameProperty;
                 break;
-                case 1://LastName
-                if([person setValue:value forProperty:kABLastNameProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 2:
+                key = kABFirstNamePhoneticProperty;
                 break;
-                case 2://FirstNamePhonetic
-                if([person setValue:value forProperty:kABFirstNamePhoneticProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 3:
+                key = kABLastNamePhoneticProperty;
                 break;
-                case 3://LastNamePhonetic
-                if([person setValue:value forProperty:kABLastNamePhoneticProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 4:
+                key = kABNicknameProperty;
                 break;
-                case 4://Nickname
-                if([person setValue:value forProperty:kABNicknameProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 5:
+                key = kABMaidenNameProperty;
                 break;
-                case 5://MaidenName
-                if([person setValue:value forProperty:kABMaidenNameProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 6:
+                key = kABBirthdayProperty;
                 break;
-                case 6://Birthday
-                if([NSDate dateWithString:value])
-                {
-                    if([person setValue:[NSDate dateWithString:value] forProperty:kABBirthdayProperty])
-                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            case 7:
+                key = kABOrganizationProperty;
+                break;
+            case 8:
+                key = kABJobTitleProperty;
+                break;
+            case 9:
+                key = kABNoteProperty;
+                break;
+            case 10:
+                key = kABDepartmentProperty;
+                break;
+            case 11:
+                key = kABMiddleNameProperty;
+                break;
+            case 12:
+                key = kABMiddleNamePhoneticProperty;
+                break;
+            case 13:
+                key = kABTitleProperty;
+                break;
+            case 14:
+                key = kABSuffixProperty;
+                break;
+            default:
+                break;
+        }
+        
+        if(key != nil) {
+            if([key isEqualToString:kABBirthdayProperty]) {
+                if(([person valueForKey:key] == nil) || ([NSDate dateWithString:value] != nil)){
+                    if([person setValue:[NSDate dateWithString:value] forProperty:key])
+                        success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                }else{
+                    if([person setValue:nil forProperty:key])
+                        success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 }
-                break;
-                case 7://Organization
-                if([person setValue:value forProperty:kABOrganizationProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 8://JobTitle
-                if([person setValue:value forProperty:kABJobTitleProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 9://Note
-                if([person setValue:value forProperty:kABNoteProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 10://Department
-                if([person setValue:value forProperty:kABDepartmentProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 11://MiddleName
-                if([person setValue:value forProperty:kABMiddleNameProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 12://MiddleNamePhonetic
-                if([person setValue:value forProperty:kABMiddleNamePhoneticProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 13://Title
-                if([person setValue:value forProperty:kABTitleProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                case 14://Suffix
-                if([person setValue:value forProperty:kABSuffixProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                break;
-                default:
-                break;
+            }else{
+                if(([person valueForKey:key] == nil) || ([value length] != 0)){
+                    if([person setValue:value forProperty:key])
+                        success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                }else{
+                    if([person setValue:nil forProperty:key])
+                        success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                }
             }
         }
         
@@ -1249,90 +1232,92 @@ void AB_Get_person_property(sLONG_PTR *pResult, PackagePtr pParams)
     
     if(person)
     {
+        NSUInteger pid = NSNotFound;
+        
         @autoreleasepool
         {
             NSArray *personProperties = @[
-                                          @"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname" ,
-                                          @"MaidenName", @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department",
-                                          @"MiddleName", @"MiddleNamePhonetic", @"Title", @"Suffix", @"CreationDate", @"ModificationDate"];
+                @"FirstName", @"LastName", @"FirstNamePhonetic", @"LastNamePhonetic", @"Nickname" ,
+                @"MaidenName", @"Birthday", @"Organization", @"JobTitle", @"Note", @"Department",
+                @"MiddleName", @"MiddleNamePhonetic", @"Title", @"Suffix", @"CreationDate", @"ModificationDate"];
             
-            NSUInteger pid = [personProperties indexOfObject:property];
-            
-            switch (pid)
-            {
-                case 0://FirstName
+            pid = [personProperties indexOfObject:property];
+        }
+        
+        switch (pid)
+        {
+            case 0://FirstName
                 Param3.setUTF16String([person valueForProperty:kABFirstNameProperty]);
                 success = 1;
                 break;
-                case 1://LastName
+            case 1://LastName
                 Param3.setUTF16String([person valueForProperty:kABLastNameProperty]);
                 success = 1;
                 break;
-                case 2://FirstNamePhonetic
+            case 2://FirstNamePhonetic
                 Param3.setUTF16String([person valueForProperty:kABFirstNamePhoneticProperty]);
                 success = 1;
                 break;
-                case 3://LastNamePhonetic
+            case 3://LastNamePhonetic
                 Param3.setUTF16String([person valueForProperty:kABLastNamePhoneticProperty]);
                 success = 1;
                 break;
-                case 4://Nickname
+            case 4://Nickname
                 Param3.setUTF16String([person valueForProperty:kABNicknameProperty]);
                 success = 1;
                 break;
                 
-                case 5://MaidenName
+            case 5://MaidenName
                 Param3.setUTF16String([person valueForProperty:kABMaidenNameProperty]);
                 success = 1;
                 break;
-                case 6://Birthday
+            case 6://Birthday
                 Param3.setUTF16String([[person valueForProperty:kABBirthdayProperty]description]);
                 success = 1;
                 break;
-                case 7://Organization
+            case 7://Organization
                 Param3.setUTF16String([person valueForProperty:kABOrganizationProperty]);
                 success = 1;
                 break;
-                case 8://JobTitle
+            case 8://JobTitle
                 Param3.setUTF16String([person valueForProperty:kABJobTitleProperty]);
                 success = 1;
                 break;
-                case 9://Note
+            case 9://Note
                 Param3.setUTF16String([person valueForProperty:kABNoteProperty]);
                 success = 1;
                 break;
                 
-                case 10://Department
+            case 10://Department
                 Param3.setUTF16String([person valueForProperty:kABDepartmentProperty]);
                 success = 1;
                 break;
-                case 11://MiddleName
+            case 11://MiddleName
                 Param3.setUTF16String([person valueForProperty:kABMiddleNameProperty]);
                 success = 1;
                 break;
-                case 12://MiddleNamePhonetic
+            case 12://MiddleNamePhonetic
                 Param3.setUTF16String([person valueForProperty:kABMiddleNamePhoneticProperty]);
                 success = 1;
                 break;
-                case 13://Title
+            case 13://Title
                 Param3.setUTF16String([person valueForProperty:kABTitleProperty]);
                 success = 1;
                 break;
-                case 14://Suffix
+            case 14://Suffix
                 Param3.setUTF16String([person valueForProperty:kABSuffixProperty]);
                 success = 1;
                 break;
-                case 15://CreationDate
+            case 15://CreationDate
                 Param3.setUTF16String([[person valueForProperty:kABCreationDateProperty]description]);
                 success = 1;
                 break;
-                case 16://ModificationDate
+            case 16://ModificationDate
                 Param3.setUTF16String([[person valueForProperty:kABModificationDateProperty]description]);
                 success = 1;
                 break;
-                default:
+            default:
                 break;
-            }
         }
     }
     
@@ -1362,7 +1347,7 @@ void AB_Remove_person(sLONG_PTR *pResult, PackagePtr pParams)
     if(person)
     {
         if([[ABAddressBook sharedAddressBook]removeRecord:person])
-        success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
     }
     
     if(error)
@@ -1402,21 +1387,25 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
     
     if(person)
     {
+        NSUInteger pid = NSNotFound;
+        
         @autoreleasepool
         {
             NSArray *personProperties = @[
-                                          @"URLs", @"CalendarURI", @"Email", @"Address", @"OtherDates" ,
-                                          @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant", @"MSNInstant", @"YahooInstant",
-                                          @"ICQInstant"];
+                @"URLs", @"CalendarURI", @"Email", @"Address", @"OtherDates" ,
+                @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant", @"MSNInstant", @"YahooInstant",
+                @"ICQInstant"];
             
-            NSUInteger pid = [personProperties indexOfObject:property];
-            CFPropertyListRef dictionaryPropertyList;
-            NSString *identifier;
-            unsigned int i;
-            
-            switch (pid)
-            {
-                case 0://URLs
+            pid = [personProperties indexOfObject:property];
+        }
+        
+        CFPropertyListRef dictionaryPropertyList;
+        NSString *identifier;
+        unsigned int i;
+        
+        switch (pid)
+        {
+            case 0://URLs
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1438,7 +1427,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                         if((i == 1) && (identifier))
                         {
                             if(![properties setPrimaryIdentifier:identifier])
-                            NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                         }
                     }else{
                         NSLog(@"attempt to set person property %@ with no label.", value);
@@ -1448,10 +1437,10 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABURLsProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
-                case 1://CalendarURI
+            case 1://CalendarURI
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1473,7 +1462,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                         if((i == 1) && (identifier))
                         {
                             if(![properties setPrimaryIdentifier:identifier])
-                            NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                         }
                     }else{
                         NSLog(@"attempt to set person property %@ with no label.", value);
@@ -1483,10 +1472,10 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABCalendarURIsProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
-                case 2://Email
+            case 2://Email
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1508,7 +1497,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                         if((i == 1) && (identifier))
                         {
                             if(![properties setPrimaryIdentifier:identifier])
-                            NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                         }
                     }else{
                         NSLog(@"attempt to set person property %@ with no label.", value);
@@ -1518,10 +1507,10 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABEmailProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
-                case 3://Address
+            case 3://Address
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1548,7 +1537,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                                 if((i == 1) && (identifier))
                                 {
                                     if(![properties setPrimaryIdentifier:identifier])
-                                    NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                        NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                                 }
                             }
                             CFRelease(dictionaryPropertyList);
@@ -1561,10 +1550,10 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABAddressProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
-                case 4://OtherDates
+            case 4://OtherDates
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1588,7 +1577,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                             if((i == 1) && (identifier))
                             {
                                 if(![properties setPrimaryIdentifier:identifier])
-                                NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                    NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                             }
                         }
                     }else{
@@ -1599,11 +1588,11 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABOtherDatesProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
                 
-                case 5://RelatedNames
+            case 5://RelatedNames
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1625,7 +1614,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                         if((i == 1) && (identifier))
                         {
                             if(![properties setPrimaryIdentifier:identifier])
-                            NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                         }
                     }else{
                         NSLog(@"attempt to set person property %@ with no label.", value);
@@ -1635,10 +1624,10 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABRelatedNamesProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
-                case 6://Phone
+            case 6://Phone
                 
                 for(i = 1; i < Param3.getSize(); i++)
                 {
@@ -1660,7 +1649,7 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                         if((i == 1) && (identifier))
                         {
                             if(![properties setPrimaryIdentifier:identifier])
-                            NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
+                                NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
                         }
                     }else{
                         NSLog(@"attempt to set person property %@ with no label.", value);
@@ -1670,189 +1659,11 @@ void AB_Set_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 
                 if([person setValue:properties forProperty:kABPhoneProperty])
-                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+                    success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 
                 break;
-                /*
-                 case 7://AIMInstant
-                 
-                 for(i = 1; i < Param3.getSize(); i++)
-                 {
-                 C_TEXT v, l;
-                 CUTF16String vv, ll;
-                 
-                 Param3.copyUTF16StringAtIndex(&vv, i);
-                 Param4.copyUTF16StringAtIndex(&ll, i);
-                 
-                 v.setUTF16String(&vv);
-                 l.setUTF16String(&ll);
-                 
-                 NSString *value = v.copyUTF16String();
-                 NSString *label = l.copyUTF16String();
-                 
-                 if([label length])
-                 {
-                 identifier = [properties addValue:value withLabel:label];
-                 if((i == 1) && (identifier))
-                 {
-                 if(![properties setPrimaryIdentifier:identifier])
-                 NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
-                 }
-                 }else{
-                 NSLog(@"attempt to set person property %@ with no label.", value);
-                 }
-                 [value release];
-                 [label release];
-                 }
-                 
-                 if([person setValue:properties forProperty:kABAIMInstantProperty])
-                 success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                 
-                 break;
-                 case 8://JabberInstant
-                 
-                 for(i = 1; i < Param3.getSize(); i++)
-                 {
-                 C_TEXT v, l;
-                 CUTF16String vv, ll;
-                 
-                 Param3.copyUTF16StringAtIndex(&vv, i);
-                 Param4.copyUTF16StringAtIndex(&ll, i);
-                 
-                 v.setUTF16String(&vv);
-                 l.setUTF16String(&ll);
-                 
-                 NSString *value = v.copyUTF16String();
-                 NSString *label = l.copyUTF16String();
-                 
-                 if([label length])
-                 {
-                 identifier = [properties addValue:value withLabel:label];
-                 if((i == 1) && (identifier))
-                 {
-                 if(![properties setPrimaryIdentifier:identifier])
-                 NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
-                 }
-                 }else{
-                 NSLog(@"attempt to set person property %@ with no label.", value);
-                 }
-                 [value release];
-                 [label release];
-                 }
-                 
-                 if([person setValue:properties forProperty:kABJabberInstantProperty])
-                 success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                 
-                 break;
-                 case 9://MSNInstant
-                 
-                 for(i = 1; i < Param3.getSize(); i++)
-                 {
-                 C_TEXT v, l;
-                 CUTF16String vv, ll;
-                 
-                 Param3.copyUTF16StringAtIndex(&vv, i);
-                 Param4.copyUTF16StringAtIndex(&ll, i);
-                 
-                 v.setUTF16String(&vv);
-                 l.setUTF16String(&ll);
-                 
-                 NSString *value = v.copyUTF16String();
-                 NSString *label = l.copyUTF16String();
-                 
-                 if([label length])
-                 {
-                 identifier = [properties addValue:value withLabel:label];
-                 if((i == 1) && (identifier))
-                 {
-                 if(![properties setPrimaryIdentifier:identifier])
-                 NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
-                 }
-                 }else{
-                 NSLog(@"attempt to set person property %@ with no label.", value);
-                 }
-                 [value release];
-                 [label release];
-                 }
-                 
-                 if([person setValue:properties forProperty:kABMSNInstantProperty])
-                 success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                 
-                 break;
-                 case 10://YahooInstant
-                 
-                 for(i = 1; i < Param3.getSize(); i++)
-                 {
-                 C_TEXT v, l;
-                 CUTF16String vv, ll;
-                 
-                 Param3.copyUTF16StringAtIndex(&vv, i);
-                 Param4.copyUTF16StringAtIndex(&ll, i);
-                 
-                 v.setUTF16String(&vv);
-                 l.setUTF16String(&ll);
-                 
-                 NSString *value = v.copyUTF16String();
-                 NSString *label = l.copyUTF16String();
-                 
-                 if([label length])
-                 {
-                 identifier = [properties addValue:value withLabel:label];
-                 if((i == 1) && (identifier))
-                 {
-                 if(![properties setPrimaryIdentifier:identifier])
-                 NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
-                 }
-                 }else{
-                 NSLog(@"attempt to set person property %@ with no label.", value);
-                 }
-                 [value release];
-                 [label release];
-                 }
-                 
-                 if([person setValue:properties forProperty:kABYahooInstantProperty])
-                 success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                 
-                 break;
-                 case 11://ICQInstant
-                 
-                 for(i = 1; i < Param3.getSize(); i++)
-                 {
-                 C_TEXT v, l;
-                 CUTF16String vv, ll;
-                 
-                 Param3.copyUTF16StringAtIndex(&vv, i);
-                 Param4.copyUTF16StringAtIndex(&ll, i);
-                 
-                 v.setUTF16String(&vv);
-                 l.setUTF16String(&ll);
-                 
-                 NSString *value = v.copyUTF16String();
-                 NSString *label = l.copyUTF16String();
-                 
-                 if([label length])
-                 {
-                 identifier = [properties addValue:value withLabel:label];
-                 if((i == 1) && (identifier))
-                 {
-                 if(![properties setPrimaryIdentifier:identifier])
-                 NSLog(@"can't update primary identifier: %@ for %@", identifier, label);
-                 }
-                 }else{
-                 NSLog(@"attempt to set person property %@ with no label.", value);
-                 }
-                 [value release];
-                 [label release];
-                 }
-                 
-                 if([person setValue:properties forProperty:kABICQInstantProperty])
-                 success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-                 
-                 break;
-                 */
-                default:
+            default:
                 break;
-            }
         }
         
         if(error)
@@ -1891,22 +1702,24 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
     
     if(person)
     {
+        NSUInteger pid = NSNotFound;
+        
         @autoreleasepool
         {
             NSArray *personProperties = @[
-                                          @"URLs", @"CalendarURI", @"Email", @"Address", @"OtherDates" ,
-                                          @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant", @"MSNInstant", @"YahooInstant",
-                                          @"ICQInstant"];
+                @"URLs", @"CalendarURI", @"Email", @"Address", @"OtherDates" ,
+                @"RelatedNames", @"Phone", @"AIMInstant", @"JabberInstant", @"MSNInstant", @"YahooInstant",
+                @"ICQInstant"];
             
-            NSUInteger pid = [personProperties indexOfObject:property];
-            
-            ABMutableMultiValue *properties;
-            
-            unsigned int i;
-            
-            switch (pid)
-            {
-                case 0://URLs
+            pid = [personProperties indexOfObject:property];
+        }
+        ABMutableMultiValue *properties;
+        
+        unsigned int i;
+        
+        switch (pid)
+        {
+            case 0://URLs
                 properties = [person valueForProperty:kABURLsProperty];
                 if([properties count])
                 {
@@ -1921,7 +1734,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 1://CalendarURI
+            case 1://CalendarURI
                 properties = [person valueForProperty:kABCalendarURIsProperty];
                 if([properties count])
                 {
@@ -1936,7 +1749,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 2://Email
+            case 2://Email
                 properties = [person valueForProperty:kABEmailProperty];
                 if([properties count])
                 {
@@ -1951,7 +1764,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 3://Address
+            case 3://Address
                 properties = [person valueForProperty:kABAddressProperty];
                 if([properties count])
                 {
@@ -1972,7 +1785,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 4://OtherDates
+            case 4://OtherDates
                 properties = [person valueForProperty:kABOtherDatesProperty];
                 if([properties count])
                 {
@@ -1987,7 +1800,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 5://RelatedNames
+            case 5://RelatedNames
                 properties = [person valueForProperty:kABRelatedNamesProperty];
                 if([properties count])
                 {
@@ -2002,7 +1815,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 6://Phone
+            case 6://Phone
                 properties = [person valueForProperty:kABPhoneProperty];
                 if([properties count])
                 {
@@ -2017,7 +1830,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 7://AIMInstant
+            case 7://AIMInstant
                 properties = [person valueForProperty:kABAIMInstantProperty];
                 if([properties count])
                 {
@@ -2032,7 +1845,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 8://JabberInstant
+            case 8://JabberInstant
                 properties = [person valueForProperty:kABJabberInstantProperty];
                 if([properties count])
                 {
@@ -2047,7 +1860,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 9://MSNInstant
+            case 9://MSNInstant
                 properties = [person valueForProperty:kABMSNInstantProperty];
                 if([properties count])
                 {
@@ -2062,7 +1875,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 10://YahooInstant
+            case 10://YahooInstant
                 properties = [person valueForProperty:kABYahooInstantProperty];
                 if([properties count])
                 {
@@ -2077,7 +1890,7 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                case 11://ICQInstant
+            case 11://ICQInstant
                 properties = [person valueForProperty:kABICQInstantProperty];
                 if([properties count])
                 {
@@ -2092,9 +1905,8 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
                 }
                 success = 1;
                 break;
-                default:
+            default:
                 break;
-            }
         }
     }
     
@@ -2110,121 +1922,121 @@ void AB_Get_person_properties(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Set_person_image(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT returnValue;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	NSError *error = nil;
-	int success = 0;
-	NSString *uniqueId = Param1.copyUTF16String();
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	
-	if(person)
-	{
-		PA_Picture p = *(PA_Picture *)(pParams[1]);
-		CGImageRef cgImage = (CGImageRef)PA_CreateNativePictureForScreen(p);
-		NSImage *nsImage = [[NSImage alloc]initWithCGImage:cgImage size:NSZeroSize];
-		NSData *image = [nsImage TIFFRepresentation];
-		[nsImage release];
-		
-		if(image)
-		{
-			if([person setImageData:image])
-				success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-			
-		}else{
-			if([person setImageData:nil])//no image for this record
-				success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-		}
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't update person: %@", [error localizedDescription]);
-	}
-	
-	[uniqueId release];
-	
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    C_TEXT Param1;
+    C_LONGINT returnValue;
+    
+    Param1.fromParamAtIndex(pParams, 1);
+    
+    NSError *error = nil;
+    int success = 0;
+    NSString *uniqueId = Param1.copyUTF16String();
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
+    
+    if(person)
+    {
+        PA_Picture p = *(PA_Picture *)(pParams[1]);
+        CGImageRef cgImage = (CGImageRef)PA_CreateNativePictureForScreen(p);
+        NSImage *nsImage = [[NSImage alloc]initWithCGImage:cgImage size:NSZeroSize];
+        NSData *image = [nsImage TIFFRepresentation];
+        [nsImage release];
+        
+        if(image)
+        {
+            if([person setImageData:image])
+                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+            
+        }else{
+            if([person setImageData:nil])//no image for this record
+                success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+        }
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't update person: %@", [error localizedDescription]);
+    }
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_person_image(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT returnValue;
-	PA_Picture picture;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	int success = 0;
-	NSData *image;
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	
-	if(person)
-	{
-		image = [person imageData];
-		
-		if(image)
-		{
-			picture = PA_CreatePicture((void *)[image bytes], [image length]);
-		}else{
-			picture = PA_CreatePicture(NULL, 0);
-		}
-		success = 1;
-	}else{
-		picture = PA_CreatePicture(NULL, 0);
-	}
-	
-	PA_Picture* ptpict;
-	
-	ptpict = (PA_Picture *)(pParams[1]);
-	
-	if (*ptpict)
-		PA_DisposePicture(*ptpict);
-	
-	*ptpict = picture;
-	
-	[uniqueId release];
-	
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    C_TEXT Param1;
+    C_LONGINT returnValue;
+    PA_Picture picture;
+    
+    Param1.fromParamAtIndex(pParams, 1);
+    
+    int success = 0;
+    NSData *image;
+    
+    NSString *uniqueId = Param1.copyUTF16String();
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
+    
+    if(person)
+    {
+        image = [person imageData];
+        
+        if(image)
+        {
+            picture = PA_CreatePicture((void *)[image bytes], [image length]);
+        }else{
+            picture = PA_CreatePicture(NULL, 0);
+        }
+        success = 1;
+    }else{
+        picture = PA_CreatePicture(NULL, 0);
+    }
+    
+    PA_Picture* ptpict;
+    
+    ptpict = (PA_Picture *)(pParams[1]);
+    
+    if (*ptpict)
+        PA_DisposePicture(*ptpict);
+    
+    *ptpict = picture;
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Person_get_vcard(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	int success = 0;
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	NSData *vcard;
-	
-	if(person)
-	{
-		vcard = [person vCardRepresentation];
-		
-		if(vcard)
-		{
-			Param2.setUTF8String((const uint8_t *)[vcard bytes], [vcard length]);
-			Param2.toParamAtIndex(pParams, 2);
-			success = 1;
-		}
-	}
-	
-	[uniqueId release];
-	
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
+    
+    Param1.fromParamAtIndex(pParams, 1);
+    
+    int success = 0;
+    
+    NSString *uniqueId = Param1.copyUTF16String();
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
+    NSData *vcard;
+    
+    if(person)
+    {
+        vcard = [person vCardRepresentation];
+        
+        if(vcard)
+        {
+            Param2.setUTF8String((const uint8_t *)[vcard bytes], [vcard length]);
+            Param2.toParamAtIndex(pParams, 2);
+            success = 1;
+        }
+    }
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_QUERY_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)
@@ -2247,8 +2059,8 @@ void AB_QUERY_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)
     NSString *value = Param4.copyUTF16String();
     NSString *comparison = Param5.copyUTF16String();
     
-    @autoreleasepool
-    {
+//    @autoreleasepool
+//    {
         ABSearchElement *search = [ABPerson searchElementForProperty:_PropertyForName(property) label:_LabelForName(label)
                                                                  key:_AddressKeyForName(key) value:_ValueForProperty(value, property) comparison:_SearchComparisonForName(comparison)];
         
@@ -2268,7 +2080,7 @@ void AB_QUERY_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)
         }
         
         person_ids.toParamAtIndex(pParams, 6);
-    }
+//    }
     
     [property release];
     [label release];
@@ -2279,130 +2091,130 @@ void AB_QUERY_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Create_person_with_vcard(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT returnValue;
+    C_TEXT Param1;
+    C_TEXT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	NSError *error = nil;
-	
-	NSString *vcard = Param1.copyUTF16String();
-	ABPerson *person = [[ABPerson alloc]initWithVCardRepresentation:[vcard dataUsingEncoding:NSUTF8StringEncoding]];
-	
-	if(person)
-	{
-		[[ABAddressBook sharedAddressBook ]addRecord:person];
-		if(![[ABAddressBook sharedAddressBook]saveAndReturnError:&error])
-		{
-			NSLog(@"can't create person: %@", [error localizedDescription]);
-		}else{
-			returnValue.setUTF16String([person uniqueId]);
-		}
-		[person release];
-	}
-	
-	[vcard release];
+    NSError *error = nil;
     
-	returnValue.setReturn(pResult);
+    NSString *vcard = Param1.copyUTF16String();
+    ABPerson *person = [[ABPerson alloc]initWithVCardRepresentation:[vcard dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    if(person)
+    {
+        [[ABAddressBook sharedAddressBook ]addRecord:person];
+        if(![[ABAddressBook sharedAddressBook]saveAndReturnError:&error])
+        {
+            NSLog(@"can't create person: %@", [error localizedDescription]);
+        }else{
+            returnValue.setUTF16String([person uniqueId]);
+        }
+        [person release];
+    }
+    
+    [vcard release];
+    
+    returnValue.setReturn(pResult);
 }
 
 void AB_Set_person_flags(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_LONGINT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSError *error = nil;
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	int flags = Param2.getIntValue();	
-	
-	if(person)
-	{
-		if([person setValue:[NSNumber numberWithInt:flags] forProperty:kABPersonFlags])
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't update person: %@", [error localizedDescription]);
-	}
-	
-	[uniqueId release];
+    int success = 0;
+    NSError *error = nil;
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    NSString *uniqueId = Param1.copyUTF16String();
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
+    int flags = Param2.getIntValue();
+    
+    if(person)
+    {
+        if([person setValue:[NSNumber numberWithInt:flags] forProperty:kABPersonFlags])
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't update person: %@", [error localizedDescription]);
+    }
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_person_flags(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_LONGINT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	int success = 0;
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	
-	if(person)
-	{
-		Param2.setIntValue([[person valueForProperty:kABPersonFlags]intValue]);
-		success = 1;
-	}
-	
-	[uniqueId release];
+    int success = 0;
     
-	Param2.toParamAtIndex(pParams, 2);
-	
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    NSString *uniqueId = Param1.copyUTF16String();
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
+    
+    if(person)
+    {
+        Param2.setIntValue([[person valueForProperty:kABPersonFlags]intValue]);
+        success = 1;
+    }
+    
+    [uniqueId release];
+    
+    Param2.toParamAtIndex(pParams, 2);
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_me(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT returnValue;
+    C_TEXT returnValue;
     
-	ABPerson *person = [[ABAddressBook sharedAddressBook]me];
-	
-	if(person)
-	{
-		returnValue.setUTF16String([person uniqueId]);
-	}else{
-		NSLog(@"no record is set as me");
-	}
+    ABPerson *person = [[ABAddressBook sharedAddressBook]me];
     
-	returnValue.setReturn(pResult);
+    if(person)
+    {
+        returnValue.setUTF16String([person uniqueId]);
+    }else{
+        NSLog(@"no record is set as me");
+    }
+    
+    returnValue.setReturn(pResult);
 }
 
 void AB_Set_me(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	int success = 0;
-	
-	NSString *uniqueId = Param1.copyUTF16String();	
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	
-	[[ABAddressBook sharedAddressBook]setMe:person];
-	
-	success = 1;	
+    int success = 0;
     
-	[uniqueId release];
+    NSString *uniqueId = Param1.copyUTF16String();
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    [[ABAddressBook sharedAddressBook]setMe:person];
+    
+    success = 1;
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 // ------------------------------------- Group ------------------------------------
@@ -2410,351 +2222,351 @@ void AB_Set_me(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Create_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT returnValue;
+    C_TEXT returnValue;
     
-	NSError *error = nil;
-	
-	ABGroup *group = [[ABGroup alloc]init];
-	
-	[[ABAddressBook sharedAddressBook]addRecord:group];
-	
-	if(![[ABAddressBook sharedAddressBook]saveAndReturnError:&error])
-	{
-		NSLog(@"can't create group: %@", [error localizedDescription]);
-	}else{
-		returnValue.setUTF16String([group uniqueId]);
-	}
-	
-	[group release];
+    NSError *error = nil;
     
-	returnValue.setReturn(pResult);
+    ABGroup *group = [[ABGroup alloc]init];
+    
+    [[ABAddressBook sharedAddressBook]addRecord:group];
+    
+    if(![[ABAddressBook sharedAddressBook]saveAndReturnError:&error])
+    {
+        NSLog(@"can't create group: %@", [error localizedDescription]);
+    }else{
+        returnValue.setUTF16String([group uniqueId]);
+    }
+    
+    [group release];
+    
+    returnValue.setReturn(pResult);
 }
 
 void AB_Set_group_name(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSError *error = nil;	
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	NSString *name = Param2.copyUTF16String();
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group)
-	{
-		if([group setValue:name forProperty:@"GroupName"])
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];		
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't update group: %@", [error localizedDescription]);
-	}	
-	
-	[uniqueId release];
-	[name release];	
+    int success = 0;
+    NSError *error = nil;
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    NSString *uniqueId = Param1.copyUTF16String();
+    NSString *name = Param2.copyUTF16String();
+    
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
+    
+    if(group)
+    {
+        if([group setValue:name forProperty:@"GroupName"])
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't update group: %@", [error localizedDescription]);
+    }
+    
+    [uniqueId release];
+    [name release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_group_name(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSString *uniqueId = Param1.copyUTF16String();
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group) 
-	{
-		Param2.setUTF16String([group valueForProperty:@"GroupName"]);
-		success = 1;		
-	}
-	
-	[uniqueId release];
+    int success = 0;
+    NSString *uniqueId = Param1.copyUTF16String();
     
-	Param2.toParamAtIndex(pParams, 2);
-	
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
+    
+    if(group)
+    {
+        Param2.setUTF16String([group valueForProperty:@"GroupName"]);
+        success = 1;
+    }
+    
+    [uniqueId release];
+    
+    Param2.toParamAtIndex(pParams, 2);
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Remove_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	int success = 0;
-	NSError *error = nil;	
-	NSString *uniqueId = Param1.copyUTF16String();
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group)
-	{
-		if([[ABAddressBook sharedAddressBook]removeRecord:group])
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't remove group: %@", [error localizedDescription]);
-	}
-	
-	[uniqueId release];	
-	
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    int success = 0;
+    NSError *error = nil;
+    NSString *uniqueId = Param1.copyUTF16String();
+    
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
+    
+    if(group)
+    {
+        if([[ABAddressBook sharedAddressBook]removeRecord:group])
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't remove group: %@", [error localizedDescription]);
+    }
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Remove_person_from_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSError *error = nil;	
-	
-	NSString *group_uniqueId = Param1.copyUTF16String();	
-	NSString *person_uniqueId = Param2.copyUTF16String();	
-	
-	ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
-	ABPerson *person = _GetPersonForUniqueId(person_uniqueId);
-	
-	if((group) && (person))
-	{
-		if([group removeMember:person])
-		{
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-		}		
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't remove person from group: %@", [error localizedDescription]);
-	}
-	
-	[group_uniqueId release];
-	[person_uniqueId release];
+    int success = 0;
+    NSError *error = nil;
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    NSString *group_uniqueId = Param1.copyUTF16String();
+    NSString *person_uniqueId = Param2.copyUTF16String();
+    
+    ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
+    ABPerson *person = _GetPersonForUniqueId(person_uniqueId);
+    
+    if((group) && (person))
+    {
+        if([group removeMember:person])
+        {
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+        }
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't remove person from group: %@", [error localizedDescription]);
+    }
+    
+    [group_uniqueId release];
+    [person_uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Add_group_to_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSError *error = nil;	
-	
-	NSString *group_uniqueId = Param1.copyUTF16String();	
-	NSString *subgroup_uniqueId = Param2.copyUTF16String();	
-	
-	ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
-	ABGroup *subgroup = _GetGroupForUniqueId(subgroup_uniqueId);	
-	
-	if((group) && (subgroup))
-	{
-		if([group addSubgroup:subgroup])
-		{
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-		}		
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't add group to group: %@", [error localizedDescription]);
-	}		
+    int success = 0;
+    NSError *error = nil;
     
-	[group_uniqueId release];
-	[subgroup_uniqueId release];
+    NSString *group_uniqueId = Param1.copyUTF16String();
+    NSString *subgroup_uniqueId = Param2.copyUTF16String();
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
+    ABGroup *subgroup = _GetGroupForUniqueId(subgroup_uniqueId);
+    
+    if((group) && (subgroup))
+    {
+        if([group addSubgroup:subgroup])
+        {
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+        }
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't add group to group: %@", [error localizedDescription]);
+    }
+    
+    [group_uniqueId release];
+    [subgroup_uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Add_person_to_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSError *error = nil;
-	NSString *group_uniqueId = Param1.copyUTF16String();	
-	NSString *person_uniqueId = Param2.copyUTF16String();	
-	
-	ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
-	ABPerson *person = _GetPersonForUniqueId(person_uniqueId);
-	
-	if((group) && (person))
-	{
-		if([group addMember:person])
-		{
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-		}
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't add person from group: %@", [error localizedDescription]);
-	}	
-	
-	[group_uniqueId release];
-	[person_uniqueId release];
+    int success = 0;
+    NSError *error = nil;
+    NSString *group_uniqueId = Param1.copyUTF16String();
+    NSString *person_uniqueId = Param2.copyUTF16String();
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
+    ABPerson *person = _GetPersonForUniqueId(person_uniqueId);
+    
+    if((group) && (person))
+    {
+        if([group addMember:person])
+        {
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+        }
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't add person from group: %@", [error localizedDescription]);
+    }
+    
+    [group_uniqueId release];
+    [person_uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Remove_group_from_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
     
-	int success = 0;
-	NSError *error = nil;
-	NSString *group_uniqueId = Param1.copyUTF16String();	
-	NSString *subgroup_uniqueId = Param2.copyUTF16String();		
-	
-	ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
-	ABGroup *subgroup = _GetGroupForUniqueId(subgroup_uniqueId);	
-	
-	if((group) && (subgroup))
-	{
-		if([group removeSubgroup:subgroup])
-		{
-			success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
-		}
-	}
-	
-	if(error)
-	{
-		success = [error code];
-		NSLog(@"can't remove group from group: %@", [error localizedDescription]);
-	}			
-	
-	[group_uniqueId release];
-	[subgroup_uniqueId release];
+    int success = 0;
+    NSError *error = nil;
+    NSString *group_uniqueId = Param1.copyUTF16String();
+    NSString *subgroup_uniqueId = Param2.copyUTF16String();
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    ABGroup *group = _GetGroupForUniqueId(group_uniqueId);
+    ABGroup *subgroup = _GetGroupForUniqueId(subgroup_uniqueId);
+    
+    if((group) && (subgroup))
+    {
+        if([group removeSubgroup:subgroup])
+        {
+            success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
+        }
+    }
+    
+    if(error)
+    {
+        success = [error code];
+        NSLog(@"can't remove group from group: %@", [error localizedDescription]);
+    }
+    
+    [group_uniqueId release];
+    [subgroup_uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_people_in_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	ARRAY_TEXT people;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    ARRAY_TEXT people;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	int success = 0;
-	NSString *uniqueId = Param1.copyUTF16String();
+    int success = 0;
+    NSString *uniqueId = Param1.copyUTF16String();
     
-	unsigned int i;
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group)
-	{
-		NSArray *members = [group members];
-		
-		if([members count])
-		{
-			people.appendUTF16String(@"");
-			for( i = 0; i < [members count]; ++i )
-			{
-				if((i % 0x2000)==0)
-				{
-					PA_YieldAbsolute();
-				}
-				people.appendUTF16String([[members objectAtIndex:i]valueForProperty:@"UID"]);
-			}
-			success = 1;
-		}
-	}	
-	
-	[uniqueId release];
-	
+    unsigned int i;
+    
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
+    
+    if(group)
+    {
+        NSArray *members = [group members];
+        
+        if([members count])
+        {
+            people.appendUTF16String(@"");
+            for( i = 0; i < [members count]; ++i )
+            {
+                if((i % 0x2000)==0)
+                {
+                    PA_YieldAbsolute();
+                }
+                people.appendUTF16String([[members objectAtIndex:i]valueForProperty:@"UID"]);
+            }
+            success = 1;
+        }
+    }
+    
+    [uniqueId release];
+    
     people.toParamAtIndex(pParams, 2);
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_groups_in_group(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	ARRAY_TEXT groups;
-	C_LONGINT returnValue;
+    C_TEXT Param1;
+    ARRAY_TEXT groups;
+    C_LONGINT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	int success = 0;
-	NSString *uniqueId = Param1.copyUTF16String();
+    int success = 0;
+    NSString *uniqueId = Param1.copyUTF16String();
     
-	unsigned int i;
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group)
-	{
-		NSArray *subgroups = [group subgroups];
-		
-		if([subgroups count])
-		{		
-			groups.appendUTF16String(@"");
-			for( i = 0; i < [subgroups count]; i++ )
-			{
-				groups.appendUTF16String([[subgroups objectAtIndex:i]valueForProperty:@"UID"]);
-			}
-			groups.toParamAtIndex(pParams, 2);
-			success = 1;
-		}
-	}	
+    unsigned int i;
     
-	[uniqueId release];
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
     
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    if(group)
+    {
+        NSArray *subgroups = [group subgroups];
+        
+        if([subgroups count])
+        {
+            groups.appendUTF16String(@"");
+            for( i = 0; i < [subgroups count]; i++ )
+            {
+                groups.appendUTF16String([[subgroups objectAtIndex:i]valueForProperty:@"UID"]);
+            }
+            groups.toParamAtIndex(pParams, 2);
+            success = 1;
+        }
+    }
+    
+    [uniqueId release];
+    
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 // ----------------------------------- Type Cast ----------------------------------
@@ -2762,114 +2574,114 @@ void AB_Get_groups_in_group(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Make_date(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_DATE Param1;
-	C_TIME Param2;
-	C_TEXT Param3;
-	C_TEXT returnValue;
+    C_DATE Param1;
+    C_TIME Param2;
+    C_TEXT Param3;
+    C_TEXT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
-	Param3.fromParamAtIndex(pParams, 3);
-	
-	PA_Date date;	
-	date.fYear = Param1.getYear();	
-	date.fMonth = Param1.getMonth();
-	date.fDay = Param1.getDay();
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
+    Param3.fromParamAtIndex(pParams, 3);
     
-	int seconds = Param2.getSeconds();
-	NSString *name = Param3.copyUTF16String();
-	
-	NSString *description = _DateTimeZoneToString(&date, seconds, name);
-	returnValue.setUTF16String(description);
+    PA_Date date;
+    date.fYear = Param1.getYear();
+    date.fMonth = Param1.getMonth();
+    date.fDay = Param1.getDay();
     
-	[description release];
-	[name release];	
+    int seconds = Param2.getSeconds();
+    NSString *name = Param3.copyUTF16String();
     
-	returnValue.setReturn(pResult);
+    NSString *description = _DateTimeZoneToString(&date, seconds, name);
+    returnValue.setUTF16String(description);
+    
+    [description release];
+    [name release];
+    
+    returnValue.setReturn(pResult);
 }
 
 void AB_GET_DATE(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_DATE Param2;
-	C_TIME Param3;
-	C_LONGINT Param4;
+    C_TEXT Param1;
+    C_DATE Param2;
+    C_TIME Param3;
+    C_LONGINT Param4;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	NSString *dateString = Param1.copyUTF16String();	
-	
-	PA_Date date;
-	date.fDay = 0;
-	date.fMonth = 0;
-	date.fYear = 0;	
-	int time = 0;
-	int offset = 0;
-	
-	_StringToDateTimeOffset(dateString, &date, &time, &offset);
-	
-	Param2.setYearMonthDay(date.fYear, date.fMonth, date.fDay);
-	Param3.setSeconds(time);
-	Param4.setIntValue(offset);
+    NSString *dateString = Param1.copyUTF16String();
     
-	[dateString release];
+    PA_Date date;
+    date.fDay = 0;
+    date.fMonth = 0;
+    date.fYear = 0;
+    int time = 0;
+    int offset = 0;
     
-	Param2.toParamAtIndex(pParams, 2);
-	Param3.toParamAtIndex(pParams, 3);
-	Param4.toParamAtIndex(pParams, 4);
+    _StringToDateTimeOffset(dateString, &date, &time, &offset);
+    
+    Param2.setYearMonthDay(date.fYear, date.fMonth, date.fDay);
+    Param3.setSeconds(time);
+    Param4.setIntValue(offset);
+    
+    [dateString release];
+    
+    Param2.toParamAtIndex(pParams, 2);
+    Param3.toParamAtIndex(pParams, 3);
+    Param4.toParamAtIndex(pParams, 4);
 }
 
 void AB_Make_address(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT Param2;
-	C_TEXT Param3;
-	C_TEXT Param4;
-	C_TEXT Param5;
-	C_TEXT Param6;
-	C_TEXT returnValue;
+    C_TEXT Param1;
+    C_TEXT Param2;
+    C_TEXT Param3;
+    C_TEXT Param4;
+    C_TEXT Param5;
+    C_TEXT Param6;
+    C_TEXT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
-	Param2.fromParamAtIndex(pParams, 2);
-	Param3.fromParamAtIndex(pParams, 3);
-	Param4.fromParamAtIndex(pParams, 4);
-	Param5.fromParamAtIndex(pParams, 5);
-	Param6.fromParamAtIndex(pParams, 6);
+    Param1.fromParamAtIndex(pParams, 1);
+    Param2.fromParamAtIndex(pParams, 2);
+    Param3.fromParamAtIndex(pParams, 3);
+    Param4.fromParamAtIndex(pParams, 4);
+    Param5.fromParamAtIndex(pParams, 5);
+    Param6.fromParamAtIndex(pParams, 6);
     
-	NSString *street = Param1.copyUTF16String();	
-	NSString *city = Param2.copyUTF16String();	
-	NSString *state = Param3.copyUTF16String();	
-	NSString *zip = Param4.copyUTF16String();
-	NSString *country = Param5.copyUTF16String();
-	NSString *code = Param6.copyUTF16String();	
-	
-	NSMutableDictionary *address = [[NSMutableDictionary alloc]init];
-	[address setObject:street forKey:kABAddressStreetKey];
-	[address setObject:city forKey:kABAddressCityKey];
-	[address setObject:state forKey:kABAddressStateKey];
-	[address setObject:zip forKey:kABAddressZIPKey];
-	[address setObject:country forKey:kABAddressCountryKey];
-	[address setObject:[code lowercaseString] forKey:kABAddressCountryCodeKey];
-	
-	CFPropertyListRef dictionaryPropertyList = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)address, kCFPropertyListImmutable);	
-	NSData *dictionaryData = (NSData *)CFPropertyListCreateXMLData(kCFAllocatorDefault, dictionaryPropertyList);	
-	NSString *addressData = [[NSString alloc]initWithData:dictionaryData encoding:NSUTF8StringEncoding];
-	[dictionaryData release];
-	CFRelease(dictionaryPropertyList);	
-	[address release];											
-	
-	returnValue.setUTF16String(addressData);
-	
-	[addressData release];
-	
-	[street release];
-	[city release];
-	[state release];
-	[zip release];
-	[country release];
-	[code release];
+    NSString *street = Param1.copyUTF16String();
+    NSString *city = Param2.copyUTF16String();
+    NSString *state = Param3.copyUTF16String();
+    NSString *zip = Param4.copyUTF16String();
+    NSString *country = Param5.copyUTF16String();
+    NSString *code = Param6.copyUTF16String();
     
-	returnValue.setReturn(pResult);
+    NSMutableDictionary *address = [[NSMutableDictionary alloc]init];
+    [address setObject:street forKey:kABAddressStreetKey];
+    [address setObject:city forKey:kABAddressCityKey];
+    [address setObject:state forKey:kABAddressStateKey];
+    [address setObject:zip forKey:kABAddressZIPKey];
+    [address setObject:country forKey:kABAddressCountryKey];
+    [address setObject:[code lowercaseString] forKey:kABAddressCountryCodeKey];
+    
+    CFPropertyListRef dictionaryPropertyList = CFPropertyListCreateDeepCopy(kCFAllocatorDefault, (CFDictionaryRef)address, kCFPropertyListImmutable);
+    NSData *dictionaryData = (NSData *)CFPropertyListCreateXMLData(kCFAllocatorDefault, dictionaryPropertyList);
+    NSString *addressData = [[NSString alloc]initWithData:dictionaryData encoding:NSUTF8StringEncoding];
+    [dictionaryData release];
+    CFRelease(dictionaryPropertyList);
+    [address release];
+    
+    returnValue.setUTF16String(addressData);
+    
+    [addressData release];
+    
+    [street release];
+    [city release];
+    [state release];
+    [zip release];
+    [country release];
+    [code release];
+    
+    returnValue.setReturn(pResult);
 }
 
 void AB_GET_ADDRESS(sLONG_PTR *pResult, PackagePtr pParams)
@@ -2938,153 +2750,153 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
     
     unsigned int i;
     
-    @autoreleasepool
-    {
+//    @autoreleasepool
+//    {
         switch (Param1)
         {
             case AB_PEOPLE:
-            
-            switch (Param3)
-            {
-                case AB_RECORDS_ALL:
-                people = [[ABAddressBook sharedAddressBook]people];
-                if([people count])
+                
+                switch (Param3)
                 {
-                    ids.appendUTF16String(@"");
-                    for(i = 0 ; i < [people count] ; ++i){
-                        if((i % 0x2000)==0)
+                    case AB_RECORDS_ALL:
+                        people = [[ABAddressBook sharedAddressBook]people];
+                        if([people count])
                         {
-                            PA_YieldAbsolute();
-                        }
-                        ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
-                    }
-                }
-                break;
-                case AB_RECORDS_CREATED_SINCE:
-                if(nsd)
-                {
-                    search = [ABPerson
-                              searchElementForProperty:kABCreationDateProperty
-                              label:nil
-                              key:nil
-                              value:nsd
-                              comparison:kABGreaterThan];
-                    people = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
-                    if([people count])
-                    {
-                        ids.appendUTF16String(@"");
-                        for(i = 0 ; i < [people count] ; ++i){
-                            if((i % 0x2000)==0)
-                            {
-                                PA_YieldAbsolute();
+                            ids.appendUTF16String(@"");
+                            for(i = 0 ; i < [people count] ; ++i){
+                                if((i % 0x2000)==0)
+                                {
+                                    PA_YieldAbsolute();
+                                }
+                                ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
                             }
-                            ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
                         }
-                    }
-                }
-                break;
-                case AB_RECORDS_MODIFIED_SINCE:
-                if(nsd)
-                {
-                    search = [ABPerson
-                              searchElementForProperty:kABModificationDateProperty
-                              label:nil
-                              key:nil
-                              value:nsd
-                              comparison:kABGreaterThan];
-                    people = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
-                    if([people count])
-                    {
-                        ids.appendUTF16String(@"");
-                        for(i = 0 ; i < [people count] ; ++i){
-                            if((i % 0x2000)==0)
+                        break;
+                    case AB_RECORDS_CREATED_SINCE:
+                        if(nsd)
+                        {
+                            search = [ABPerson
+                                      searchElementForProperty:kABCreationDateProperty
+                                      label:nil
+                                      key:nil
+                                      value:nsd
+                                      comparison:kABGreaterThan];
+                            people = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
+                            if([people count])
                             {
-                                PA_YieldAbsolute();
+                                ids.appendUTF16String(@"");
+                                for(i = 0 ; i < [people count] ; ++i){
+                                    if((i % 0x2000)==0)
+                                    {
+                                        PA_YieldAbsolute();
+                                    }
+                                    ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
+                                }
                             }
-                            ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
                         }
-                    }
+                        break;
+                    case AB_RECORDS_MODIFIED_SINCE:
+                        if(nsd)
+                        {
+                            search = [ABPerson
+                                      searchElementForProperty:kABModificationDateProperty
+                                      label:nil
+                                      key:nil
+                                      value:nsd
+                                      comparison:kABGreaterThan];
+                            people = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
+                            if([people count])
+                            {
+                                ids.appendUTF16String(@"");
+                                for(i = 0 ; i < [people count] ; ++i){
+                                    if((i % 0x2000)==0)
+                                    {
+                                        PA_YieldAbsolute();
+                                    }
+                                    ids.appendUTF16String([[people objectAtIndex:i]valueForProperty:@"UID"]);
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
-                default:
-                break;
-            }
-            break;
-            
+                
             case AB_GROUPS:
-            
-            switch (Param3)
-            {
-                case AB_RECORDS_ALL:
-                groups = [[ABAddressBook sharedAddressBook]groups];
-                if([groups count])
+                
+                switch (Param3)
                 {
-                    ids.appendUTF16String(@"");
-                    for(i = 0 ; i < [groups count] ; ++i){
-                        if((i % 0x2000)==0)
+                    case AB_RECORDS_ALL:
+                        groups = [[ABAddressBook sharedAddressBook]groups];
+                        if([groups count])
                         {
-                            PA_YieldAbsolute();
-                        }
-                        ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
-                    }
-                }
-                break;
-                case AB_RECORDS_CREATED_SINCE:
-                if(nsd)
-                {
-                    search = [ABGroup
-                              searchElementForProperty:kABCreationDateProperty
-                              label:nil
-                              key:nil
-                              value:nsd
-                              comparison:kABGreaterThan];
-                    if([groups count])
-                    {
-                        ids.appendUTF16String(@"");
-                        for(i = 0 ; i < [groups count] ; ++i)
-                        {
-                            if((i % 0x2000)==0)
-                            {
-                                PA_YieldAbsolute();
+                            ids.appendUTF16String(@"");
+                            for(i = 0 ; i < [groups count] ; ++i){
+                                if((i % 0x2000)==0)
+                                {
+                                    PA_YieldAbsolute();
+                                }
+                                ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
                             }
-                            ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
                         }
-                    }
-                }
-                break;
-                case AB_RECORDS_MODIFIED_SINCE:
-                if(nsd)
-                {
-                    search = [ABGroup
-                              searchElementForProperty:kABModificationDateProperty
-                              label:nil
-                              key:nil
-                              value:nsd
-                              comparison:kABGreaterThan];
-                    groups = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
-                    if([groups count])
-                    {
-                        ids.appendUTF16String(@"");
-                        for(i = 0 ; i < [groups count] ; ++i)
+                        break;
+                    case AB_RECORDS_CREATED_SINCE:
+                        if(nsd)
                         {
-                            if((i % 0x2000)==0)
+                            search = [ABGroup
+                                      searchElementForProperty:kABCreationDateProperty
+                                      label:nil
+                                      key:nil
+                                      value:nsd
+                                      comparison:kABGreaterThan];
+                            if([groups count])
                             {
-                                PA_YieldAbsolute();
+                                ids.appendUTF16String(@"");
+                                for(i = 0 ; i < [groups count] ; ++i)
+                                {
+                                    if((i % 0x2000)==0)
+                                    {
+                                        PA_YieldAbsolute();
+                                    }
+                                    ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
+                                }
                             }
-                            ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
                         }
-                    }
+                        break;
+                    case AB_RECORDS_MODIFIED_SINCE:
+                        if(nsd)
+                        {
+                            search = [ABGroup
+                                      searchElementForProperty:kABModificationDateProperty
+                                      label:nil
+                                      key:nil
+                                      value:nsd
+                                      comparison:kABGreaterThan];
+                            groups = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
+                            if([groups count])
+                            {
+                                ids.appendUTF16String(@"");
+                                for(i = 0 ; i < [groups count] ; ++i)
+                                {
+                                    if((i % 0x2000)==0)
+                                    {
+                                        PA_YieldAbsolute();
+                                    }
+                                    ids.appendUTF16String([[groups objectAtIndex:i]valueForProperty:@"UID"]);
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
                 }
                 break;
-                default:
-                break;
-            }
-            break;
-            
+                
             default:
-            break;
+                break;
         }
-    }
+//    }
     
     ids.toParamAtIndex(pParams, 2);
     
@@ -3095,37 +2907,37 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Get_localized_string(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	C_TEXT returnValue;
+    C_TEXT Param1;
+    C_TEXT returnValue;
     
-	Param1.fromParamAtIndex(pParams, 1);
+    Param1.fromParamAtIndex(pParams, 1);
     
-	//this is a C function, not Obj-C
-	NSString *propertyOrLabel = Param1.copyUTF16String();
-	NSString *localizedString = (NSString *)ABCopyLocalizedPropertyOrLabel((CFStringRef)propertyOrLabel);
-	
-	returnValue.setUTF16String(localizedString);
-	
-	[propertyOrLabel release];
-	[localizedString release];
+    //this is a C function, not Obj-C
+    NSString *propertyOrLabel = Param1.copyUTF16String();
+    NSString *localizedString = (NSString *)ABCopyLocalizedPropertyOrLabel((CFStringRef)propertyOrLabel);
     
-	returnValue.setReturn(pResult);
+    returnValue.setUTF16String(localizedString);
+    
+    [propertyOrLabel release];
+    [localizedString release];
+    
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_default_country_code(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT returnValue;
+    C_TEXT returnValue;
     
-	returnValue.setUTF16String([[ABAddressBook sharedAddressBook]defaultCountryCode]);	
-	returnValue.setReturn(pResult);
+    returnValue.setUTF16String([[ABAddressBook sharedAddressBook]defaultCountryCode]);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_default_name_ordering(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_LONGINT returnValue;
-	
-	returnValue.setIntValue([[ABAddressBook sharedAddressBook]defaultNameOrdering]);
-	returnValue.setReturn(pResult);
+    C_LONGINT returnValue;
+    
+    returnValue.setIntValue([[ABAddressBook sharedAddressBook]defaultNameOrdering]);
+    returnValue.setReturn(pResult);
 }
 
 // --------------------------------- Notification ---------------------------------
@@ -3148,7 +2960,7 @@ void AB_Set_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
         returnValue.setIntValue(1);
     }
     
-	returnValue.setReturn(pResult);
+    returnValue.setReturn(pResult);
 }
 
 void AB_Get_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
@@ -3157,7 +2969,7 @@ void AB_Get_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
     {
         AB::LISTENER_METHOD.toParamAtIndex(pParams, 1);
     }
-
+    
     C_LONGINT returnValue;
     returnValue.setIntValue(1);
     returnValue.setReturn(pResult);
@@ -3168,43 +2980,43 @@ void AB_Get_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
 
 void AB_Get_parent_groups(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	ARRAY_TEXT groups;
-	C_LONGINT returnValue;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	int success = 0;
-	NSString *uniqueId = Param1.copyUTF16String();
-	
-	unsigned int i;
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group)
-	{
-		NSArray *parentGroups = [group parentGroups];
-		
-		if([parentGroups count])
-		{		
-			groups.appendUTF16String(@"");
-			for( i = 0; i < [parentGroups count]; ++i )
-			{
-				if((i % 0x2000)==0)
-				{
-					PA_YieldAbsolute();
-				}
-				groups.appendUTF16String([[parentGroups objectAtIndex:i]valueForProperty:@"UID"]);
-			}
-			success = 1;
-		}
-	}	
-	
-	[uniqueId release];
-	
+    C_TEXT Param1;
+    ARRAY_TEXT groups;
+    C_LONGINT returnValue;
+    
+    Param1.fromParamAtIndex(pParams, 1);
+    
+    int success = 0;
+    NSString *uniqueId = Param1.copyUTF16String();
+    
+    unsigned int i;
+    
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
+    
+    if(group)
+    {
+        NSArray *parentGroups = [group parentGroups];
+        
+        if([parentGroups count])
+        {
+            groups.appendUTF16String(@"");
+            for( i = 0; i < [parentGroups count]; ++i )
+            {
+                if((i % 0x2000)==0)
+                {
+                    PA_YieldAbsolute();
+                }
+                groups.appendUTF16String([[parentGroups objectAtIndex:i]valueForProperty:@"UID"]);
+            }
+            success = 1;
+        }
+    }
+    
+    [uniqueId release];
+    
     groups.toParamAtIndex(pParams, 2);
-	returnValue.setIntValue(success);
-	returnValue.setReturn(pResult);
+    returnValue.setIntValue(success);
+    returnValue.setReturn(pResult);
 }
 
 // ------------------------------------ Special -----------------------------------
@@ -3332,8 +3144,8 @@ void AB_FIND_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)
     
     unsigned int i;
     
-    @autoreleasepool
-    {
+//    @autoreleasepool
+//    {
         if((size1 == size2) && (size2 == size3) && (size3 == size4) && (size4 == size5)){
             
             NSMutableArray *children = [[NSMutableArray alloc]init];
@@ -3400,89 +3212,89 @@ void AB_FIND_PEOPLE(sLONG_PTR *pResult, PackagePtr pParams)
             }
             
         }
-    }
+//    }
     
     Param7.toParamAtIndex(pParams, 7);
 }
 
 void AB_GET_GROUP_GROUPS(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	ARRAY_TEXT Param2;
-	
-	unsigned int i;
-	NSArray *groups = nil;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	
-	ABGroup *group = _GetGroupForUniqueId(uniqueId);
-	
-	if(group)
-	{
-		groups = [group parentGroups];
-		
-		if(groups)
-		{
-			if([groups count])
-			{
-				Param2.appendUTF16String(@"");				
-				for( i = 0; i < [groups count]; ++i )
-				{
-					if((i % 0x2000)==0)
-					{
-						PA_YieldAbsolute();
-					}
-					Param2.appendUTF16String([[groups objectAtIndex:i] valueForProperty:kABUIDProperty]);
-				}
-			}
-		}
-	}
-	
-	[uniqueId release];	
-	
-	Param2.toParamAtIndex(pParams, 2);
+    C_TEXT Param1;
+    ARRAY_TEXT Param2;
+    
+    unsigned int i;
+    NSArray *groups = nil;
+    
+    Param1.fromParamAtIndex(pParams, 1);
+    
+    NSString *uniqueId = Param1.copyUTF16String();
+    
+    ABGroup *group = _GetGroupForUniqueId(uniqueId);
+    
+    if(group)
+    {
+        groups = [group parentGroups];
+        
+        if(groups)
+        {
+            if([groups count])
+            {
+                Param2.appendUTF16String(@"");
+                for( i = 0; i < [groups count]; ++i )
+                {
+                    if((i % 0x2000)==0)
+                    {
+                        PA_YieldAbsolute();
+                    }
+                    Param2.appendUTF16String([[groups objectAtIndex:i] valueForProperty:kABUIDProperty]);
+                }
+            }
+        }
+    }
+    
+    [uniqueId release];
+    
+    Param2.toParamAtIndex(pParams, 2);
 }
 
 void AB_GET_PERSON_GROUPS(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_TEXT Param1;
-	ARRAY_TEXT Param2;
-	
-	unsigned int i;
-	NSArray *groups = nil;
-	
-	Param1.fromParamAtIndex(pParams, 1);
-	
-	NSString *uniqueId = Param1.copyUTF16String();
-	
-	ABPerson *person = _GetPersonForUniqueId(uniqueId);
-	
-	if(person)
-	{
-		groups = [person parentGroups];
-		
-		if(groups)
-		{
-			if([groups count])
-			{
-				Param2.appendUTF16String(@"");				
-				for( i = 0; i < [groups count]; ++i )
-				{
-					if((i % 0x2000)==0)
-					{
-						PA_YieldAbsolute();
-					}
-					Param2.appendUTF16String([[groups objectAtIndex:i] valueForProperty:kABUIDProperty]);
-				}
-			}
-		}
-	}
+    C_TEXT Param1;
+    ARRAY_TEXT Param2;
     
-	[uniqueId release];	
-	
-	Param2.toParamAtIndex(pParams, 2);
+    unsigned int i;
+    NSArray *groups = nil;
+    
+    Param1.fromParamAtIndex(pParams, 1);
+    
+    NSString *uniqueId = Param1.copyUTF16String();
+    
+    ABPerson *person = _GetPersonForUniqueId(uniqueId);
+    
+    if(person)
+    {
+        groups = [person parentGroups];
+        
+        if(groups)
+        {
+            if([groups count])
+            {
+                Param2.appendUTF16String(@"");
+                for( i = 0; i < [groups count]; ++i )
+                {
+                    if((i % 0x2000)==0)
+                    {
+                        PA_YieldAbsolute();
+                    }
+                    Param2.appendUTF16String([[groups objectAtIndex:i] valueForProperty:kABUIDProperty]);
+                }
+            }
+        }
+    }
+    
+    [uniqueId release];
+    
+    Param2.toParamAtIndex(pParams, 2);
 }
 
 void AB_REMOVE_FROM_PRIVACY_LIST(sLONG_PTR *pResult, PackagePtr pParams)
@@ -3536,8 +3348,8 @@ request_permission_t requestPermission() {
 
 void AB_Request_permisson(sLONG_PTR *pResult, PackagePtr pParams)
 {
-	C_LONGINT returnValue;
-
+    C_LONGINT returnValue;
+    
 #if VERSIONMAC
     NSBundle *mainBundle = [NSBundle mainBundle];
     if(mainBundle) {
@@ -3559,7 +3371,7 @@ void AB_Request_permisson(sLONG_PTR *pResult, PackagePtr pParams)
                         if(CFBooleanGetValue(boolValue)) {
                             
                             request_permission_t permission = requestPermission();
-
+                            
                         }
                         
                         if(request_permission_granted) {
@@ -3592,7 +3404,7 @@ void AB_Request_permisson(sLONG_PTR *pResult, PackagePtr pParams)
         NSLog(@"failed to locate [NSBundle mainBundle]");
     }
 #endif
-
-	returnValue.setReturn(pResult);
+    
+    returnValue.setReturn(pResult);
 }
 
