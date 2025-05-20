@@ -1186,7 +1186,20 @@ void AB_Set_person_property(sLONG_PTR *pResult, PackagePtr pParams)
                     if([person setValue:nil forProperty:key])
                         success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 }
-            }else{
+            }
+            else if([key isEqualToString:kABNoteProperty]) {
+                NSError* contactError;
+                CNContactStore* cs = [[CNContactStore alloc]init];
+                
+                NSString *containerId = cs.defaultContainerIdentifier;
+                NSPredicate *predicate = [CNContact predicateForContactsInContainerWithIdentifier:containerId];
+                NSArray * keysToFetch =@[CNContactGivenNameKey];
+                CNContactFetchRequest * request = [[CNContactFetchRequest alloc]initWithKeysToFetch:keysToFetch];
+                BOOL success = [cs enumerateContactsWithFetchRequest:request error:&contactError usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop){
+//                    NSLog(@"%@", contact.note);
+                        }];
+            }
+            else{
                 if(([person valueForKey:key] == nil) || ([value length] != 0)){
                     if([person setValue:value forProperty:key])
                         success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
