@@ -1,0 +1,22 @@
+{
+	"methods": {
+		"issue_2": {
+			"timeStamp": "2026-09-15T11:08:03Z",
+			"attributes": {
+				"invisible": true
+			}
+		},
+		"CB_TEST": {
+			"timeStamp": "2026-09-15T11:08:03Z"
+		},
+		"Method2": {
+			"timeStamp": "2026-09-15T11:08:03Z"
+		},
+		"Method4": {
+			"timeStamp": "2026-09-15T11:08:03Z"
+		},
+		"CALLBACK": {
+			"timeStamp": "2026-09-15T11:08:03Z"
+		}
+	}
+}
