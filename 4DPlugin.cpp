@@ -1187,18 +1187,6 @@ void AB_Set_person_property(sLONG_PTR *pResult, PackagePtr pParams)
                         success = [[ABAddressBook sharedAddressBook]saveAndReturnError:&error];
                 }
             }
-            else if([key isEqualToString:kABNoteProperty]) {
-                NSError* contactError;
-                CNContactStore* cs = [[CNContactStore alloc]init];
-                
-                NSString *containerId = cs.defaultContainerIdentifier;
-                NSPredicate *predicate = [CNContact predicateForContactsInContainerWithIdentifier:containerId];
-                NSArray * keysToFetch =@[CNContactGivenNameKey];
-                CNContactFetchRequest * request = [[CNContactFetchRequest alloc]initWithKeysToFetch:keysToFetch];
-                BOOL success = [cs enumerateContactsWithFetchRequest:request error:&contactError usingBlock:^(CNContact * __nonnull contact, BOOL * __nonnull stop){
-//                    NSLog(@"%@", contact.note);
-                        }];
-            }
             else{
                 if(([person valueForKey:key] == nil) || ([value length] != 0)){
                     if([person setValue:value forProperty:key])
@@ -2863,6 +2851,7 @@ void AB_GET_LIST(sLONG_PTR *pResult, PackagePtr pParams)
                                       key:nil
                                       value:nsd
                                       comparison:kABGreaterThan];
+                            groups = [[ABAddressBook sharedAddressBook]recordsMatchingSearchElement:search];
                             if([groups count])
                             {
                                 ids.appendUTF16String(@"");
@@ -2980,6 +2969,8 @@ void AB_Get_notification_method(sLONG_PTR *pResult, PackagePtr pParams)
 {
     if(1)
     {
+        std::lock_guard<std::mutex> lock(globalMutex2);
+        
         AB::LISTENER_METHOD.toParamAtIndex(pParams, 1);
     }
     
