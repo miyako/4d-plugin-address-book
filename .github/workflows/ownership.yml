@@ -1,0 +1,39 @@
+name: Ownership
+
+on:
+  push:
+    branches: [master, miyako-address-book-ownership-audit]
+    paths:
+      - "4D Plugin API/**"
+      - "4DPlugin.cpp"
+      - "4DPlugin.h"
+      - ".github/tests/ownership*"
+      - ".github/tests/test_ownership.py"
+      - ".github/workflows/ownership.yml"
+      - "tests/test_native_workflow.py"
+  pull_request:
+    branches: [master]
+    paths:
+      - "4D Plugin API/**"
+      - "4DPlugin.cpp"
+      - "4DPlugin.h"
+      - ".github/tests/ownership*"
+      - ".github/tests/test_ownership.py"
+      - ".github/workflows/ownership.yml"
+      - "tests/test_native_workflow.py"
+
+permissions:
+  contents: read
+
+jobs:
+  ownership:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Synthetic 4D engine ownership harness (ASan/UBSan, no Contacts access)
+        run: python3 .github/tests/test_ownership.py -v

@@ -306,8 +306,24 @@ class NativeWorkflowContractTests(unittest.TestCase):
             path.name: yaml.load(path.read_text(), Loader=yaml.BaseLoader)
             for path in WORKFLOW.parent.glob("*.yml")
         }
-        self.assertEqual(set(workflows), {"release.yml", "bump-version.yml"})
+        self.assertEqual(set(workflows), {"release.yml", "bump-version.yml", "ownership.yml"})
         build, bump = workflows["release.yml"], workflows["bump-version.yml"]
+        ownership = workflows["ownership.yml"]
+        self.assertEqual(ownership["name"], "Ownership")
+        self.assertEqual(set(ownership["on"]), {"push", "pull_request"})
+        self.assertEqual(ownership["on"]["pull_request"]["branches"], ["master"])
+        self.assertIn("master", ownership["on"]["push"]["branches"])
+        self.assertEqual(ownership["permissions"], {"contents": "read"})
+        self.assertNotIn("${{ secrets", (WORKFLOW.parent / "ownership.yml").read_text())
+        self.assertNotIn("concurrency", ownership)
+        self.assertEqual(list(ownership["jobs"]), ["ownership"])
+        ownership_job = ownership["jobs"]["ownership"]
+        self.assertIn(ownership_job["runs-on"], {"macos-15", "macos-latest"})
+        self.assertEqual([step["uses"] for step in ownership_job["steps"] if "uses" in step],
+                         ["actions/checkout@v4"])
+        self.assertEqual(ownership_job["steps"][0]["with"]["persist-credentials"], "false")
+        self.assertEqual([step["run"] for step in ownership_job["steps"] if "run" in step],
+                         ["python3 .github/tests/test_ownership.py -v"])
         self.assertEqual(build["name"], "Build")
         self.assertEqual(build["on"], {"workflow_dispatch": ""})
         self.assertEqual(bump["name"], "Bump version")

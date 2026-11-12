@@ -416,10 +416,11 @@ void listenerLoopExecuteMethod()
     
     if(methodId)
     {
+        /* PA_SetStringVariable is a shallow assignment: start from undefined, not an empty text owner */
         PA_Variable    params[3];
-        params[0] = PA_CreateVariable(eVK_Unistring);
-        params[1] = PA_CreateVariable(eVK_Unistring);
-        params[2] = PA_CreateVariable(eVK_Unistring);
+        params[0] = PA_CreateVariable(eVK_Undefined);
+        params[1] = PA_CreateVariable(eVK_Undefined);
+        params[2] = PA_CreateVariable(eVK_Undefined);
         
         PA_Unistring INSERT_RECORDS = PA_CreateUnistring((PA_Unichar *)__INSERT_RECORDS.c_str());
         PA_SetStringVariable(&params[0], &INSERT_RECORDS);
@@ -430,24 +431,27 @@ void listenerLoopExecuteMethod()
         PA_Unistring DELETE_RECORDS = PA_CreateUnistring((PA_Unichar *)__DELETE_RECORDS.c_str());
         PA_SetStringVariable(&params[2], &DELETE_RECORDS);
         
-        PA_SetStringVariable(&params[0], &INSERT_RECORDS);
-        PA_SetStringVariable(&params[1], &UPDATE_RECORDS);
-        PA_SetStringVariable(&params[2], &DELETE_RECORDS);
-        
-        PA_ExecuteMethodByID(methodId, params, 3);
+        PA_Variable returned = PA_ExecuteMethodByID(methodId, params, 3);
+        PA_ErrorCode error = PA_GetLastError();
         
         PA_ClearVariable(&params[0]);
         PA_ClearVariable(&params[1]);
         PA_ClearVariable(&params[2]);
         
+        /* the method result is owned by the caller; it is unspecified on failure */
+        if(error == eER_NoErr)
+        {
+            PA_ClearVariable(&returned);
+        }
+        
     }else
     {
         PA_Variable    params[4];
-        params[1] = PA_CreateVariable(eVK_Unistring);
-        params[2] = PA_CreateVariable(eVK_Unistring);
-        params[3] = PA_CreateVariable(eVK_Unistring);
+        params[1] = PA_CreateVariable(eVK_Undefined);
+        params[2] = PA_CreateVariable(eVK_Undefined);
+        params[3] = PA_CreateVariable(eVK_Undefined);
         
-        params[0] = PA_CreateVariable(eVK_Unistring);
+        params[0] = PA_CreateVariable(eVK_Undefined);
         PA_Unistring method = PA_CreateUnistring((PA_Unichar *)AB::LISTENER_METHOD.getUTF16StringPtr());
         PA_SetStringVariable(&params[0], &method);
         
@@ -460,17 +464,19 @@ void listenerLoopExecuteMethod()
         PA_Unistring DELETE_RECORDS = PA_CreateUnistring((PA_Unichar *)__DELETE_RECORDS.c_str());
         PA_SetStringVariable(&params[3], &DELETE_RECORDS);
         
-        PA_SetStringVariable(&params[1], &INSERT_RECORDS);
-        PA_SetStringVariable(&params[2], &UPDATE_RECORDS);
-        PA_SetStringVariable(&params[3], &DELETE_RECORDS);
-        
         /* execute method */
-        PA_ExecuteCommandByID(1007, params, 4);
+        PA_Variable returned = PA_ExecuteCommandByID(1007, params, 4);
+        PA_ErrorCode error = PA_GetLastError();
         
         PA_ClearVariable(&params[0]);
         PA_ClearVariable(&params[1]);
         PA_ClearVariable(&params[2]);
         PA_ClearVariable(&params[3]);
+        
+        if(error == eER_NoErr)
+        {
+            PA_ClearVariable(&returned);
+        }
     }
 }
 
